@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Pending Approval - STI Archives</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/fontawesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f1a41 0%, #0057b8 100%);
+            padding: 20px;
+        }
+        
+        .pending-container {
+            background: white;
+            border-radius: 16px;
+            padding: 50px 40px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffc107 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .icon-container i {
+            font-size: 48px;
+            color: #856404;
+        }
+        
+        h1 {
+            color: #0f1a41;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+            border-left: 4px solid #0057b8;
+        }
+        
+        .info-box h3 {
+            color: #0f1a41;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-box li {
+            color: #555;
+            font-size: 14px;
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .info-box li i {
+            color: #28a745;
+            margin-top: 3px;
+        }
+        
+        .time-estimate {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .time-estimate i {
+            font-size: 24px;
+            color: #856404;
+        }
+        
+        .time-estimate p {
+            color: #856404;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .time-estimate strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0057b8 0%, #0f1a41 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 87, 184, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #0057b8;
+            border: 2px solid #0057b8;
+            margin-left: 10px;
+        }
+        
+        .btn-outline:hover {
+            background: #0057b8;
+            color: white;
+        }
+        
+        .email-notice {
+            margin-top: 25px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .email-notice i {
+            color: #155724;
+            font-size: 20px;
+        }
+        
+        .email-notice p {
+            color: #155724;
+            font-size: 13px;
+            margin: 0;
+            text-align: left;
+        }
+        
+        .logo {
+            margin-bottom: 25px;
+        }
+        
+        .logo img {
+            height: 50px;
+        }
+        
+        .logo h2 {
+            color: #0f1a41;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="logo">
+            <h2>📚 STI Archives</h2>
+        </div>
+        
+        <div class="icon-container">
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+        
+        <h1>Account Under Review</h1>
+        <p class="subtitle">
+            Thank you for registering! Your account is currently pending approval by our administrators.
+        </p>
+        
+        <div class="time-estimate">
+            <i class="fas fa-clock"></i>
+            <p>
+                <strong>Approval typically takes 24-48 hours</strong>
+                You'll receive an email once your account is approved and ready to use.
+            </p>
+        </div>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> What to Expect Next</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Our admin team will verify your credentials</li>
+                <li><i class="fas fa-check"></i> You'll receive an email when your account is approved</li>
+                <li><i class="fas fa-check"></i> Once approved, you can access all features</li>
+                <li><i class="fas fa-check"></i> Check your inbox (and spam folder) for updates</li>
+            </ul>
+        </div>
+        
+        <div class="email-notice">
+            <i class="fas fa-envelope-open-text"></i>
+            <p>
+                <strong>Registration confirmation sent!</strong><br>
+                We've sent a confirmation email to your registered address. 
+                Keep an eye on your inbox for approval notification.
+            </p>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="index.html" class="btn btn-primary">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a href="index.html#login" class="btn btn-outline">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Check if user is already logged in and approved
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Try to redirect to homepage if already logged in
+            window.location.href = 'Homepage.html';
+        }
+    </script>
+</body>
+</html>
+

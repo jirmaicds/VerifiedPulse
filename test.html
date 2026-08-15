@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactPulse Dashboard Prototype</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://tailwindcss.com"></script>
+    <!-- Chart.js for high-quality mathematical visuals -->
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen p-6">
+
+    <!-- Header Section -->
+    <header class="max-w-7xl mx-auto mb-8 text-center border-b border-gray-800 pb-6">
+        <h1 class="text-4xl font-extrabold tracking-tight text-blue-500">🌐 FactPulse Dashboard</h1>
+        <p class="text-gray-400 mt-2">Mathematics in the Modern World (MMW) Prototype Exhibit</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- ==================== PART 1: LOGICAL ENGINE ==================== -->
+        <section class="bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="p-2 bg-blue-500/10 text-blue-400 rounded-lg font-bold">Part 1</span>
+                    <h2 class="text-xl font-bold">Input & Proposition Conversion</h2>
+                </div>
+                
+                <!-- Headline Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-400 mb-2">Social Media Headline Input:</label>
+                    <textarea id="headlineInput" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-sm text-gray-200 focus:outline-none focus:border-blue-500 transition h-24 resize-none" placeholder="I-type o i-paste ang viral headline dito..."></textarea>
+                </div>
+
+                <!-- Logical Variables Form -->
+                <div class="space-y-4 mb-6">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Proposition Valuation</p>
+                    
+                    <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-gray-700/50">
+                        <label class="text-sm pr-2"><strong>p:</strong> May official memo mula sa Malacañang / CHED / DepEd.</label>
+                        <input type="checkbox" id="propP" class="w-5 h-5 rounded text-blue-500 focus:ring-0 cursor-pointer bg-gray-800 border-gray-700">
+                    </div>
+
+                    <div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-xl border border-gray-700/50">
+                        <label class="text-sm pr-2"><strong>q:</strong> Ang post ay galing sa verified news outlet.</label>
+                        <input type="checkbox" id="propQ" class="w-5 h-5 rounded text-blue-500 focus:ring-0 cursor-pointer bg-gray-800 border-gray-700">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mathematical Conjunction Evaluation Output -->
+            <div id="evaluationBox" class="bg-red-950/40 border border-red-800/60 rounded-xl p-4 transition-all duration-300">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-red-400" id="evalStatusLabel">Status: Unverified</span>
+                    <span class="text-sm font-mono font-bold bg-red-900/50 text-red-300 px-2 py-0.5 rounded" id="evalFormula">p ∧ q ≡ F</span>
+                </div>
+                <p class="text-sm font-medium text-red-200" id="evalOutput">Mataas ang tsansa ng misinformation risk dahil kulang sa validong batayan ang post.</p>
+            </div>
+        </section>
+
+        <!-- ==================== PART 2: VISUAL METRICS ==================== -->
+        <section class="lg:col-span-2 bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="p-2 bg-purple-500/10 text-purple-400 rounded-lg font-bold">Part 2</span>
+                <h2 class="text-xl font-bold">Visual Metrics & MMW Statistics</h2>
+            </div>
+
+            <!-- Grid for Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Gauge / Truth Score Meter -->
+                <div class="bg-gray-900/60 border border-gray-700/50 rounded-xl p-4 flex flex-col items-center justify-center">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-2">Credibility & Truth Score Meter</h3>
+                    <div class="relative w-full max-w-[200px]">
+                        <canvas id="gaugeChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pt-8">
+                            <span id="gaugeValue" class="text-3xl font-black text-red-500">15%</span>
+                            <span id="gaugeText" class="text-xs text-gray-400 uppercase font-bold tracking-wider">Fake / Clickbait</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sentiment Bar Chart -->
+                <div class="bg-gray-900/60 border border-gray-700/50 rounded-xl p-4">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-4">User Sentiment Distribution</h3>
+                    <div class="h-40">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Velocity Line Graph spanning full width of part 2 -->
+                <div class="bg-gray-900/60 border border-gray-700/50 rounded-xl p-4 md:col-span-2">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-2">Viral Velocity Graph (Time vs Share Count)</h3>
+                    <div class="h-44">
+                        <canvas id="velocityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== PART 3: INTERACTIVE QUIZ ==================== -->
+    <footer class="max-w-7xl mx-auto mt-8 bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-700">
+        <div class="flex items-center gap-2 mb-4">
+            <span class="p-2 bg-green-500/10 text-green-400 rounded-lg font-bold">Part 3</span>
+            <h2 class="text-xl font-bold">Interactive Verification Check (Audience Booth Engagement)</h2>
+        </div>
+        <p class="text-sm text-gray-400 mb-6">Pumili ng sample viral headline para i-test sa logical engine at tingnan ang statistical evaluation nito:</p>
+        
+        <!-- Preset Headline Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="loadHeadline(0)" class="text-left bg-gray-900 hover:bg-gray-700/50 border border-gray-700 p-4 rounded-xl transition duration-200 group">
+                <span class="text-xs text-red-400 font-bold block mb-1">🔥 Viral Sample 1</span>
+                <p class="text-sm font-medium line-clamp-2 text-gray-200 group-hover:text-white">"BREAKING: Walang pasok sa buong bansa bukas dahil sa solar flare!"</p>
+            </button>
+            <button onclick="loadHeadline(1)" class="text-left bg-gray-900 hover:bg-gray-700/50 border border-gray-700 p-4 rounded-xl transition duration-200 group">
+                <span class="text-xs text-yellow-400 font-bold block mb-1">📢 Viral Sample 2</span>
+                <p class="text-sm font-medium line-clamp-2 text-gray-200 group-hover:text-white">"ANNOUNCEMENT: May nationwide suspension ng klase ayon sa DepEd Page."</p>
+            </button>
+            <button onclick="loadHeadline(2)" class="text-left bg-gray-900 hover:bg-gray-700/50 border border-gray-700 p-4 rounded-xl transition duration-200 group">
+                <span class="text-xs text-green-400 font-bold block mb-1">✅ Verified Sample 3</span>
+                <p class="text-sm font-medium line-clamp-2 text-gray-200 group-hover:text-white">"LATEST: CHED confirms suspension of classes in NCR due to bad weather."</p>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ==================== FRONTEND CONTROLLER & GRAPH LOGIC ==================== -->
+    <script>
+        // Preset mathematical datasets for the 3 sample items
+        const presets = [
+            {
+                headline: "BREAKING: Walang pasok sa buong bansa bukas dahil sa solar flare!",
+                p: false, q: false, score: 15,
+                velocity: [5, 45, 230, 890, 2400, 5600],
+                sentiment: [85, 10, 5] // [Naniwala Agad, Nag-Fact Check, Neutral]
+            },
+            {
+                headline: "ANNOUNCEMENT: May nationwide suspension ng klase ayon sa DepEd Page.",
+                p: false, q: true, score: 45,
+                velocity: [12, 80, 410, 1100, 1950, 3100],
+                sentiment: [55, 30, 15]
+            },
+            {
+                headline: "LATEST: CHED confirms suspension of classes in NCR due to bad weather.",
+                p: true, q: true, score: 95,
+                velocity: [50, 600, 1200, 1500, 1600, 1650],
+                sentiment: [8, 88, 4]
+            }
+        ];
+
+        // Global Chart instances to allow structural re-rendering
+        let gaugeChart, sentimentChart, velocityChart;
+
+        // Initialize Charts on system load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            loadHeadline(0); // Load first preset by default
+
+            // Bind reactive event listeners to the input elements
+            document.getElementById('propP').addEventListener('change', runCustomLogic);
+            document.getElementById('document.getElementById');
+            document.getElementById('propQ').addEventListener('change', runCustomLogic);
+            document.getElementById('headlineInput').addEventListener('input', () => {
+        // Keep evaluation synchronized if user types manually
+            runCustomLogic();
+        });
+        });
+
+        function initCharts() {
+        // 1. Truth Score Meter (Doughnut Configuration acting as Gauge)
+        const ctxGauge = document.getElementById('gaugeChart').getContext('2d');
+        gaugeChart = new Chart(ctxGauge, {
+            type: 'doughnut',
+            data: {datasets: [{data: [15, 85],
+            backgroundColor: ['#ef4444', '#1f2937'],
+            borderWidth: 0,circumference: 180,
+            rotation: 270,cutout: '80%'
+        }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false }
+        } }
+        });
+        // 2. Sentiment Chart (Horizontal Bar Chart layout)
+        const ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
+        sentimentChart = new Chart(ctxSentiment, {
+        type: 'bar',
+        data: {
+        labels: ['Naniwala Agad', 'Nag-Fact Check', 'Walang Pakialam'],
+        datasets: [{
+        label: '% of Users',
+        data: [85, 10],
+        backgroundColor: ['#f87171', '#34d399', '#9ca3af'],
+        borderRadius: 6
+        }]
+        },
+        options: {indexAxis: 'y',responsive: true,maintainAspectRatio: false,plugins: { legend: { display: false } },scales: { x: { max: 100, grid: { color: '#374151' }, ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } }}});
+        // 3. Viral Velocity Graph (Line Chart tracking metric speed)
+        const ctxVelocity = document.getElementById('velocityChart').getContext('2d');velocityChart = new Chart(ctxVelocity, {type: 'line',data: {labels: ['Hr 1', 'Hr 2', 'Hr 3', 'Hr 4', 'Hr 5', 'Hr 6'],datasets: [{label: 'Shares',data: [45, 230, 890, 2400, 5600],borderColor: '#3b82f6',backgroundColor: 'rgba(59, 130, 246, 0.1)',fill: true,tension: 0.4,pointRadius: 4}]},options: {responsive: true,maintainAspectRatio: false,plugins: { legend: { display: false } },scales: { x: { grid: { color: '#374151' }, ticks: { color: '#9ca3af' } }, y: { grid: { color: '#374151' }, ticks: { color: '#9ca3af' } } }}});}
+        // Logic Engine function mapping Math Conjunction (p ∧ q)
+        function runCustomLogic() {
+            const p = document.getElementById('propP').checked;const q = document.getElementById('propQ').checked;const isVerified = p && q; 
+        // Conjunction Logic Definition: True only if both parameters are True
+        const evalBox = document.getElementById('evaluationBox');const statusLabel = document.getElementById('evalStatusLabel');const formula = document.getElementById('evalFormula');const output = document.getElementById('evalOutput');
+        // Dynamic GUI adjustment depending on truth evaluation value
+        if (isVerified) {evalBox.className = "bg-green-950/40 border border-green-800/60 rounded-xl p-4 transition-all duration-300";statusLabel.className = "text-xs font-bold uppercase tracking-widest text-green-400";statusLabel.innerText = "Status: Verified";formula.className = "text-sm font-mono font-bold bg-green-900/50 text-green-300 px-2 py-0.5 rounded";formula.innerText = "p ∧ q ≡ T";output.innerText = "Pasok sa algorithmic checks. Ang post na ito ay ligtas ibahagi at may sapat na basehan.";updateVisualMetrics(95, [8, 88, 50, 600, 1200, 1500, 1600, 1650]);} else {evalBox.className = "bg-red-950/40 border border-red-800/60 rounded-xl p-4 transition-all duration-300";statusLabel.className = "text-xs font-bold uppercase tracking-widest text-red-400";statusLabel.innerText = "Status: Unverified";formula.className = "text-sm font-mono font-bold bg-red-900/50 text-red-300 px-2 py-0.5 rounded";formula.innerText = "p ∧ q ≡ F";output.innerText = "Mataas ang tsansa ng misinformation risk dahil pumatak na False ang conjunction evaluation.";
+        // Adjust scores based on varying levels of false statements
+        if (!p && q) {updateVisualMetrics(45, [55, 30, 15], [12, 80, 410, 1100, 1950, 3100]);} else {updateVisualMetrics(15, [85, 10, 45, 230, 890, 2400, 5600]);}}}
+        // Live updating of Graph visualization interfaces
+        function updateVisualMetrics(score, sentiment, velocity) {
+        // Update Gauge elements
+        const valEl = document.getElementById('gaugeValue');const txtEl = document.getElementById('gaugeText');valEl.innerText = score + "%";if (score > 80) {valEl.className = "text-3xl font-black text-green-400";txtEl.className = "text-xs text-green-400 uppercase font-bold tracking-wider";txtEl.innerText = "Highly Credible";gaugeChart.data.datasets[0].backgroundColor = ['#34d399', '#1f2937'];} else if (score > 40) {valEl.className = "text-3xl font-black text-yellow-400";txtEl.className = "text-xs text-yellow-400 uppercase font-bold tracking-wider";txtEl.innerText = "Suspicious Post";gaugeChart.data.datasets[0].backgroundColor = ['#fbbf24', '#1f2937'];} else {valEl.className = "text-3xl font-black text-red-500";txtEl.className = "text-xs text-red-400 uppercase font-bold tracking-wider";txtEl.innerText = "Fake / Clickbait";gaugeChart.data.datasets[0].backgroundColor = ['#ef4444', '#1f2937'];}gaugeChart.data.datasets[0].data = [score, 100 - score];gaugeChart.update();
+        // Update Sentiment Bars
+        sentimentChart.data.datasets[0].data = sentiment;sentimentChart.update();
+        // Update Line Node entries
+        velocityChart.data.datasets[0].data = velocity;
+        // Aesthetic change for chart color depending on severity rules
+        velocityChart.data.datasets[0].borderColor = score > 80 ? '#10b981' : '#3b82f6';velocityChart.data.datasets[0].backgroundColor = score > 80 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)';velocityChart.update();}
+        // Function used by Part 3 interaction components
+        function loadHeadline(index) {const data = presets[index];document.getElementById('headlineInput').value = data.headline;document.getElementById('propP').checked = data.p;document.getElementById('propQ').checked = data.q;
+        // Re-run checking using preset flags
+        runCustomLogic();
+    }
+    </script>
+</body>
+</html>
