@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerifiedPulse — Privacy Policy</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="hero">
+    <h1>&#128225; VerifiedPulse</h1>
+    <h2>Privacy Policy</h2>
+    <p>Last updated: August 23, 2026</p>
+</header>
+
+<main class="container4">
+    <div class="card">
+        <h3><span class="ico">&#128274;</span> Introduction</h3>
+        <p>This Privacy Policy describes how VerifiedPulse ("we", "our", or "the application") handles information when you use our fact-checking service. VerifiedPulse evaluates claims using propositional logic and live web search evidence. We are committed to protecting your privacy and handling any data in accordance with applicable laws.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128221;</span> Information We Collect</h3>
+        <p><strong>User Input:</strong> Claims submitted by you through the frontend interface are sent to our backend server for processing.</p>
+        <p class="mt-12"><strong>Server Logs:</strong> Standard server logs may record IP addresses, timestamps, and request metadata for security and debugging purposes.</p>
+        <p class="mt-12"><strong>LLM API Requests:</strong> Claims and proposition data are sent to a configurable LLM provider (e.g., OpenAI, Anthropic) for structured analysis. No personal identifiers are attached to these requests unless you voluntarily include them in your input.</p>
+        <p class="mt-12"><strong>Stored Records:</strong> When you run a fact check, the claim text, any propositions you provide, the computed verification result, and the retrieved search evidence are saved in our database (local SQLite by default, or Supabase if configured). The service has no user registration or login, so these records are not linked to any account. Because claim text is stored as-submitted, it may contain personal information if you choose to include it.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128230;</span> How We Use Information</h3>
+        <p>We use collected information exclusively to:</p>
+        <ul class="mt-12" style="padding-left: 20px; line-height: 1.8;">
+            <li>Retrieve web search evidence to corroborate or contradict claims.</li>
+            <li>Apply propositional logic to evaluate claims for verification status.</li>
+            <li>Store claim text, propositions, verification results, and search evidence in a local SQLite database (or Supabase if configured) to generate aggregate metrics.</li>
+            <li>Improve the reliability and accuracy of the fact-checking engine.</li>
+        </ul>
+        <p class="mt-12">We do not use collected data for advertising, profiling, or any commercial purpose outside of the described functionality.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128161;</span> Web Search & Third-Party Services</h3>
+        <p>VerifiedPulse integrates with the following third-party services:</p>
+        <ul class="mt-12" style="padding-left: 20px; line-height: 1.8;">
+            <li><strong>DuckDuckGo</strong> — used for web search evidence (default, no API key required). Subject to DuckDuckGo's privacy policy.</li>
+            <li><strong>LLM Providers</strong> (e.g., OpenAI, Anthropic) — subject to their respective privacy policies. Only claim text and analysis prompts are transmitted; no PII is included unless you provide it.</li>
+            <li><strong>Optional Search APIs</strong> (e.g., Tavily, Serper) — if configured via environment variables, used instead of DuckDuckGo for web search evidence. Subject to their respective privacy policies.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128272;</span> Security</h3>
+        <p>We implement reasonable technical measures to protect data, including encrypted API communications (HTTPS), environment-variable-based credential storage, and local database access controls. However, no system is completely secure, and we cannot guarantee absolute security of data transmitted over the internet.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#9201;</span> Data Retention &amp; Your Choices</h3>
+        <p>Stored fact-check records (claim text, propositions, results, and search evidence) are retained in the database to power the metrics dashboard and improve the engine. You may request deletion of specific records or all data you have submitted by contacting the app administrator.</p>
+        <p class="mt-12">If you do not want your claim text transmitted to third-party LLM or search providers, avoid entering personal or sensitive information, or run the service in its offline heuristic mode (which requires no API key and keeps processing local).</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128664;</span> Children's Privacy</h3>
+        <p>VerifiedPulse is not directed at children under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us so we can delete it.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128229;</span> Changes to This Policy</h3>
+        <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date. Continued use of VerifiedPulse after changes constitutes acceptance of the updated policy.</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="ico">&#128231;</span> Contact</h3>
+        <p>If you have questions about this Privacy Policy, data handling, or wish to request data deletion, please contact the app administrator.</p>
+    </div>
+</main>
+
+<footer class="foot">
+    <a href="index.html" style="color: var(--blue); text-decoration: none;">&larr; Back to VerifiedPulse</a>
+</footer>
+
+</body>
+</html>

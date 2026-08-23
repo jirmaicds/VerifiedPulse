@@ -1,479 +1,573 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FactPulse - Logical Fact Checker</title>
-    
-    <style>
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body{
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #0f1a41 0%, #0057b8 100%);
-            padding: 20px;
-            gap: 24px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .container1{
-            width:70%;
-            background-color: aliceblue;
-
-            border: 1px solid rgb(248, 247, 247);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            color:black;
-            padding: 40px;
-            text-align: center;
-        }
-        .content h1{
-            margin-top: 0;
-            color: #0f1a41;
-            font-size: 2.2rem;
-        }
-        .content h2{
-            color: #0057b8;
-            margin-top: 8px;
-        }
-        .content p{
-            line-height: 1.6;
-            margin-top: 16px;
-            color: #333;
-        }
-        .container2{
-            display: flex;
-            flex-direction: column;
-            width: 70%;
-            background-color: aliceblue;
-
-            border: 1px solid rgb(248, 247, 247);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            color:black;
-            padding: 32px;
-        }
-        .container2 h3{
-            margin-top: 0;
-            color: #0f1a41;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .headline-input{
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            font-size: 15px;
-            margin-top: 12px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-            background: #f9f9f9;
-        }
-        .headline-input:focus{
-            outline: none;
-            border-color: #0057b8;
-            background: white;
-        }
-        .propositions{
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-top: 20px;
-            padding: 20px;
-            background: #f0f4f8;
-            border-radius: 12px;
-            border: 1px solid #e0e6ed;
-        }
-        .prop-item{
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #e0e6ed;
-            transition: all 0.3s;
-        }
-        .prop-item:hover{
-            border-color: #0057b8;
-            box-shadow: 0 2px 8px rgba(0,87,184,0.1);
-        }
-        .prop-item input[type="text"]{
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-            margin-top: 6px;
-            background: #f9f9f9;
-        }
-        .prop-item input[type="text"]:focus{
-            outline: none;
-            border-color: #0057b8;
-            background: white;
-        }
-        .prop-item label{
-            font-size: 14px;
-            cursor: pointer;
-            color: #333;
-            line-height: 1.5;
-        }
-        .prop-item label strong{
-            color: #0f1a41;
-        }
-        .check-btn{
-            margin-top: 20px;
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #0057b8, #0f1a41);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            align-self: flex-start;
-            box-shadow: 0 4px 15px rgba(0,87,184,0.3);
-        }
-        .check-btn:hover{
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,87,184,0.4);
-        }
-        .check-btn:active{
-            transform: translateY(0);
-        }
-        .result-box{
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 12px;
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn{
-            from{opacity:0;transform:translateY(-10px);}
-            to{opacity:1;transform:translateY(0);}
-        }
-        .result-box.verified{
-            background: #d1fae5;
-            border: 2px solid #10b981;
-            color: #065f46;
-        }
-        .result-box.unverified{
-            background: #fee2e2;
-            border: 2px solid #ef4444;
-            color: #991b1b;
-        }
-        .result-header{
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-        .result-status{
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        .result-formula{
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: rgba(0,0,0,0.05);
-        }
-        .result-message{
-            font-size: 14px;
-            line-height: 1.6;
-            margin-top: 8px;
-        }
-        .truth-table-mini{
-            display: flex;
-            gap: 16px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        .truth-chip{
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-        }
-        .truth-chip.true{
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .truth-chip.false{
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .container3{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 70%;
-            background-color: aliceblue;
-
-            border: 1px solid rgb(248, 247, 247);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            color:black;
-            padding: 24px;
-        }
-        .container3 h3{
-            margin-top: 0;
-            color: #0f1a41;
-        }
-        .quiz-btn{
-            padding: 12px 24px;
-            background-color: #0057b8;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .quiz-btn:hover{
-            background-color: #0f1a41;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,87,184,0.3);
-        }
-        .pop-up1{
-            display:none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 20px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            color: #0f1a41;
-            font-family: Arial, sans-serif;
-            z-index: 1000;
-            min-width: 280px;
-        }
-        .pop-up1 p{
-            margin: 0 0 12px 0;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .pop-up1 button{
-            background-color: #0057b8;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 14px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-right: 6px;
-        }
-        .pop-up1 button.admin-btn{
-            background-color: #0f1a41;
-        }
-        .auth-container{
-            display:none;
-            margin-top: 10px;
-        }
-        .auth-container input{
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 13px;
-        }
-        .auth-container button{
-            margin-top: 4px;
-        }
-        .logic-info{
-            margin-top: 12px;
-            padding: 12px;
-            background: #eef2ff;
-            border-radius: 8px;
-            border-left: 4px solid #0057b8;
-            font-size: 13px;
-            color: #333;
-            line-height: 1.5;
-        }
-        .logic-info code{
-            background: #dbeafe;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-        }
-    </style>
-
+    <title>VerifiedPulse Logical Fact Checker</title>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+<div id="toastContainer" class="toast-container"></div>
 
-    <div id="modal" class="pop-up1">
-        <p>Welcome to FactPulse! Are you Admin?</p>
-        <button onclick="closemodal()">Close</button>
-        <button class="admin-btn" onclick="showauth()">Admin</button>
-        <div class="auth-container" id="authContainer">
-            <input type="text" id="username" placeholder="Username" onkeypress="if(event.key==='Enter')login()">
-            <input type="password" id="password" placeholder="Password" onkeypress="if(event.key==='Enter')login()">
-            <button onclick="login()">Login</button>
+<header class="hero">
+    <h1>&#128225; VerifiedPulse</h1>
+    <h2>Logical Fact-Checking System</h2>
+    <p>VerifiedPulse uses mathematical propositional logic and live web evidence to evaluate claims. Type or paste any claim � our engine searches for corroborating sources, applies <strong>conjunction logic</strong>, and determines verification status.</p>
+</header>
+
+<nav class="tabs">
+    <button id="tabFact" class="active" onclick="showTab('fact')">&#128269; Fact Checker</button>
+    <button id="tabMetrics" onclick="showTab('metrics')">&#128202; Visual Metrics</button>
+    <button id="tabQuiz" onclick="showTab('quiz')">&#127918; Quiz Game</button>
+</nav>
+
+<section id="panelFact" class="panel active">
+    <div class="card">
+        <h3><span class="ico">&#128269;</span> Fact Checker Text Claim (Conjunction Logic)</h3>
+
+        <div class="input-mode">
+            <textarea id="claimInput" rows="3" placeholder="Type or paste the claim you want to fact-check..."></textarea>
         </div>
-    </div>
 
-    <div class="container1">
-        <div class="content">
-            <h1>Welcome to FactPulse</h1>
-            <h2>Logical Fact-Checking System</h2>
-            <p>FactPulse uses mathematical propositional logic to evaluate the credibility of social media claims. Enter any viral headline below and our system will apply conjunction logic to determine if it meets verification standards.</p>
-        </div>
-    </div>
-
-    <div class="container2">
-        <h3><span style="font-size:1.5rem;">&#128269;</span> Fact Checker</h3>
-        
-        <textarea 
-            id="headlineInput" 
-            class="headline-input" 
-            placeholder="I-type o i-paste ang viral headline dito... (Halimbawa: &quot;BREAKING: Walang pasok sa buong bansa bukas dahil sa solar flare!&quot;)"
-            rows="3"
-        ></textarea>
-
-        <div class="propositions">
-            <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#0057b8;margin-bottom:4px;">Proposition Valuation</p>
-            
-            <div class="prop-item" style="flex-direction:column;align-items:stretch;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <strong style="color:#0f1a41;">p:</strong>
-                    <span style="font-size:13px;color:#333;">Proposition sentence</span>
-                </div>
-                <input type="text" id="propPText" value="May official memo mula sa Malacañang / CHED / DepEd.">
-                <input type="text" id="propPValue" value="True" placeholder="Type True or False..." style="margin-top:6px;">
+        <div class="input-mode">
+            <div class="prop-input-row">
+                <label class="input-label" for="propP">Proposition P</label>
+                <input id="propP" type="text" placeholder="e.g. Is this claim supported by credible evidence?" />
             </div>
-
-            <div class="prop-item" style="flex-direction:column;align-items:stretch;">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <strong style="color:#0f1a41;">q:</strong>
-                    <span style="font-size:13px;color:#333;">Proposition sentence</span>
-                </div>
-                <input type="text" id="propQText" value="Ang post ay galing sa verified news outlet.">
-                <input type="text" id="propQValue" value="True" placeholder="Type True or False..." style="margin-top:6px;">
+            <div class="prop-input-row">
+                <label class="input-label" for="propQ">Proposition Q</label>
+                <input id="propQ" type="text" placeholder="e.g. Does this claim contain misinformation indicators?" />
             </div>
         </div>
 
-        <button class="check-btn" onclick="runFactCheck()">Check Fact</button>
-
-        <div id="resultBox" class="result-box">
-            <div class="result-header">
-                <span class="result-status" id="resultStatus"></span>
-                <span class="result-formula" id="resultFormula"></span>
-            </div>
-            <p class="result-message" id="resultMessage"></p>
-            <div class="truth-table-mini" id="truthChips"></div>
+        <div class="btn-row">
+            <button class="btn" onclick="evaluateClaim()">Verify Claim</button>
         </div>
-
-        <div class="logic-info">
-            <strong>How it works:</strong> Ang sistema ay gumagamit ng <code>Conjunction Logic (p &and; q)</code>. 
-            Para magkaroon ng <strong>Verified (True)</strong> na status, KABILUGAN ng dalawang conditions ay dapat totoo: 
-            (1) May official memo at (2) Galing sa verified outlet. 
-            Kapag <strong>False</strong> ang isa man, magiging <strong>Unverified / High Misinformation Risk</strong> ang resulta.
+        <div class="provider-status">
+            <span class="provider-label">Active Provider:</span>
+            <span id="activeProvider" class="provider-name">Ready</span>
         </div>
     </div>
 
-    <div class="container3">
-        <h3>Quizzes</h3>
-        <button class="quiz-btn" onclick="alert('Quiz coming soon!')">Start Quiz</button>
+    <div id="resultBox" class="result-box">
+        <div class="result-header">
+            <span class="result-status" id="resultStatus"></span>
+            <span class="result-formula" id="resultFormula"></span>
+        </div>
+        <p class="result-message" id="resultMessage"></p>
+        <div class="chips" id="truthChips"></div>
+        <div id="assessmentDetails"></div>
     </div>
 
-    <script>
-        setTimeout(function() {
-            document.getElementById('modal').style.display = 'block';
-        }, 3000);
+    <div class="card">
+        <h3><span class="ico">&#119998;</span> Truth Table</h3>
+        <p class="section-desc">All combinations of the propositions and their AND result. The claim is <strong>Verified</strong> only when every proposition is True.</p>
+        <div class="overflow-x-auto">
+            <table class="truth" id="truthTable"></table>
+        </div>
+        <div class="logic-note">
+            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ? q ? r)</code>. For a <strong>Verified (True)</strong> status, <em>all</em> propositions must be true. If any single proposition is False, the conjunction evaluates to False and the claim is flagged as <strong>Unverified / High Misinformation Risk</strong>.
+        </div>
+    </div>
+    <div class="card">
+        <h3><span class="ico">&#128218;</span> Verified Knowledge Base - Trusted Outlets &amp; Claims</h3>
+        <p class="section-desc">The backend consults this reference list of trusted outlets and verified claims when assessing each proposition via the LLM.</p>
+        <div class="section-label mt-12">Trusted Outlets / Sources</div>
+        <div class="chips" id="kbOutlets"></div>
+        <div class="section-label mt-3">Verified Claims</div>
+        <div id="kbClaims" class="kb-claims"></div>
+    </div>
+</section>
+<section id="panelMetrics" class="panel">
+    <div class="card">
+        <h3><span class="ico">&#128202;</span> Visual Metrics</h3>
+        <div class="stat-grid">
+            <div class="stat"><div class="num" id="statTotal">--</div><div class="lbl">Claims Checked</div></div>
+            <div class="stat"><div class="num" id="statVerified">--</div><div class="lbl">Verified</div></div>
+            <div class="stat"><div class="num" id="statFlagged">--</div><div class="lbl">Flagged Risky</div></div>
+            <div class="stat"><div class="num" id="statConf">--</div><div class="lbl">Verified Rate</div></div>
+        </div>
+    </div>
 
-        function closemodal() {
-            document.getElementById('modal').style.display = 'none';
+    <div class="card">
+        <div class="chart-title">&#128200; Weekly Claim Volume &amp; Verification Trend</div>
+        <div class="chart-wrap"><canvas id="trendChart" height="260"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="chart-title">&#127942; Claims by Source Type</div>
+        <div class="chart-wrap"><canvas id="barChart" height="280"></canvas></div>
+    </div>
+</section>
+
+<section id="panelQuiz" class="panel">
+    <div class="card" id="quizStart">
+        <h3><span class="ico">&#127918;</span> Misinformation &amp; Logic Quiz</h3>
+        <p>Test your knowledge of fact-checking, misinformation, and propositional logic. Answer 12 multiple-choice questions. You have <strong>30 seconds</strong> per question. Good luck!</p>
+        <div class="btn-row">
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+    </div>
+
+    <div class="card" id="quizBody">
+        <div class="quiz-header">
+            <span id="quizCounter">Question 1 / 12</span>
+            <span>Score: <strong id="quizScore">0</strong></span>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="timer-text">Time left: <strong id="timerText">30s</strong></div>
+        <div class="quiz-question" id="quizQuestion"></div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-progress mt-12" id="quizFeedback"></div>
+    </div>
+
+    <div class="card end-card" id="quizEnd">
+        <h3><span class="ico">&#127942;</span> Quiz Results</h3>
+        <div class="result-big" id="endScore"></div>
+        <div id="endPct" class="end-pct"></div>
+        <p class="end-msg" id="endMsg"></p>
+        <button class="btn" onclick="startQuiz()">Retake Quiz</button>
+    </div>
+</section>
+
+<footer class="foot">VerifiedPulse � backend-powered fact-checking demo. Type a claim to check it via conjunction logic and live web evidence.</footer>
+<script>
+/* ===================== SHARED ===================== */
+function showTab(name){
+    document.querySelectorAll('section.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('nav.tabs button').forEach(function(b){ b.classList.remove('active'); });
+    var cap = name.charAt(0).toUpperCase() + name.slice(1);
+    document.getElementById('panel'+cap).classList.add('active');
+    document.getElementById('tab'+cap).classList.add('active');
+    if(name==='metrics'){ loadMetrics(); }
+}
+
+function showToast(message, type) {
+  type = type || 'info';
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  requestAnimationFrame(function() {
+    toast.classList.add('show');
+  });
+
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() {
+      if (container.contains(toast)) {
+        container.removeChild(toast);
+      }
+    }, 300);
+  }, 6000);
+}
+
+/* ===================== 1) FACT CHECKER ===================== */
+/* ---------- VERIFIED KNOWLEDGE BASE (the "checker" reference) ---------- */
+var TRUSTED_OUTLETS = ['reuters','bbc','bbc news','nasa','nasa.gov','phivolcs','usgs','who','world health organization','doh','department of health','comelec','deped','bsp','bangko sentral','pse','philippine stock exchange','ap','associated press','afp','factcheck.org','snopes','pagasa','official government','verified'];
+
+var VERIFIED_CLAIMS = [
+  { keywords:['earthquake','quake','phivolcs','batangas'], claim:'PHIVOLCS (DOST) is the official agency that monitors and issues earthquake bulletins in the Philippines.', outlet:'PHIVOLCS' },
+  { keywords:['usgs','earthquake','magnitude'], claim:'USGS provides official real-time earthquake magnitudes and locations worldwide.', outlet:'USGS' },
+  { keywords:['covid','vaccine','doh','who'], claim:'COVID-19 vaccines were authorized after clinical trials reviewed by the WHO and the DOH.', outlet:'WHO / DOH' },
+  { keywords:['nasa','moon','landing','apollo'], claim:'NASA\'s Apollo program landed humans on the Moon in 1969 and returned them safely.', outlet:'NASA' },
+  { keywords:['comelec','election','result','winner'], claim:'COMELEC is the constitutionally mandated body that certifies Philippine election results.', outlet:'COMELEC' },
+  { keywords:['bsp','inflation','interest rate','bangko sentral'], claim:'The BSP (Bangko Sentral ng Pilipinas) sets monetary policy and target inflation.', outlet:'BSP' },
+  { keywords:['pse','stock','index','market'], claim:'The Philippine Stock Exchange (PSE) is the official exchange for listed Philippine stocks.', outlet:'PSE' },
+  { keywords:['pagasa','typhoon','storm','signal'], claim:'PAGASA is the official Philippine agency that issues typhoon warnings and storm signals.', outlet:'PAGASA' },
+  { keywords:['deped','school','class','k-12'], claim:'DepEd is the government agency responsible for basic education in the Philippines.', outlet:'DepEd' },
+  { keywords:['reuters','bbc','confirmed','reported'], claim:'Reuters and the BBC are established international wire services with editorial verification standards.', outlet:'Reuters / BBC' }
+];
+
+async function evaluateClaim(){
+    var claim = document.getElementById('claimInput').value.trim();
+    if(!claim) return alert('Please enter a claim to verify');
+
+    var propP = document.getElementById('propP').value.trim();
+    var propQ = document.getElementById('propQ').value.trim();
+    var customProps = [];
+    if (propP) customProps.push(propP);
+    if (propQ) customProps.push(propQ);
+
+    var box = document.getElementById('resultBox');
+    box.style.display = 'none';
+
+    try {
+        var resp = await fetch('/api/check-claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mode: 'text',
+                claim: claim,
+                propositions: customProps.length > 0 ? customProps : null
+            })
+        });
+
+        if (!resp.ok) {
+            const text = await resp.text();
+            throw new Error(`Server returned ${resp.status}: ${text.slice(0, 200) || 'empty response'}`);
         }
 
-        function showauth() {
-            document.getElementById('authContainer').style.display = 'block';
+        var text = await resp.text();
+        if (!text.trim()) {
+            throw new Error('Server returned empty response. Make sure the backend server is running on http://localhost:3000');
         }
+        var data = JSON.parse(text);
+        if(data.error) throw new Error(data.error);
 
-        function login() {
-            var u = document.getElementById('username').value;
-            var p = document.getElementById('password').value;
-            if (u === 'admin' && p === 'admin123') {
-                localStorage.setItem('adminAuth', 'true');
-                window.location.href = 'admin/admin.html';
-            } else {
-                alert('Invalid username or password');
-            }
-        }
-
-        function runFactCheck() {
-            const pText = document.getElementById('propPText').value.trim();
-            const qText = document.getElementById('propQText').value.trim();
-            const pValue = document.getElementById('propPValue').value.trim();
-            const qValue = document.getElementById('propQValue').value.trim();
-            const headline = document.getElementById('headlineInput').value.trim();
-
-            const resultBox = document.getElementById('resultBox');
-            const resultStatus = document.getElementById('resultStatus');
-            const resultFormula = document.getElementById('resultFormula');
-            const resultMessage = document.getElementById('resultMessage');
-            const truthChips = document.getElementById('truthChips');
-
-            if (!headline) {
-                alert('Pakipasok ang headline o claim na nais i-check.');
-                return;
-            }
-
-            const isTrue = (val) => /^(true|t|yes|y|1)$/i.test(val);
-            const p = isTrue(pValue);
-            const q = isTrue(qValue);
-            const isVerified = p && q;
-            const pDisplay = pValue || 'False';
-            const qDisplay = qValue || 'False';
-            const resultDisplay = isVerified ? 'True' : 'False';
-
-            truthChips.innerHTML = `
-                <span class="truth-chip ${p ? 'true' : 'false'}">${pText} = ${pDisplay}</span>
-                <span class="truth-chip ${q ? 'true' : 'false'}">${qText} = ${qDisplay}</span>
-                <span class="truth-chip ${isVerified ? 'true' : 'false'}">Conjunction result = ${resultDisplay}</span>
-            `;
-
-            if (isVerified) {
-                resultBox.className = 'result-box verified';
-                resultStatus.innerHTML = '&#9989; Status: Verified';
-                resultFormula.textContent = 'p \u2227 q \u2261 T';
-                resultMessage.textContent = 'Ang post ay ligtas ibahagi at may sapat na basehan. Parehong totoo ang dalawang proposition: ' + pText + ' at ' + qText + '.';
-            } else {
-                resultBox.className = 'result-box unverified';
-                resultStatus.innerHTML = '&#9888; Status: Unverified / High Misinformation Risk';
-                resultFormula.textContent = 'p \u2227 q \u2261 F';
-                let reason = 'Dahil sa False ang conjunction evaluation, mataas ang tsansa ng misinformation risk. ';
-                if (!p && !q) {
-                    reason += 'False ang parehong proposition: ' + pText + ' at ' + qText + '.';
-                } else if (!p && q) {
-                    reason += 'False ang ' + pText + ' bagama\'t true ang ' + qText + '.';
+        if (data.warnings && data.warnings.length > 0) {
+            data.warnings.forEach(function(w) {
+                var msg = w.toLowerCase();
+                if (msg.indexOf('rate limit') !== -1 || msg.indexOf('limit reached') !== -1 || msg.indexOf('suspended') !== -1) {
+                    showToast(w, 'warning');
+                } else if (msg.indexOf('switch') !== -1) {
+                    showToast(w, 'success');
+                } else if (msg.indexOf('heuristic') !== -1 || msg.indexOf('offline') !== -1) {
+                    showToast(w, 'error');
                 } else {
-                    reason += 'False ang ' + qText + ' bagama\'t true ang ' + pText + '.';
+                    showToast(w, 'info');
                 }
-                resultMessage.textContent = reason;
-            }
-
-            resultBox.style.display = 'block';
+            });
         }
-    </script>
+
+        var providerEl = document.getElementById('activeProvider');
+        if (providerEl && data.provider) {
+            if (data.provider === 'heuristic') {
+                providerEl.textContent = 'Offline Heuristic (no API)';
+                providerEl.className = 'provider-name offline';
+            } else {
+                providerEl.textContent = data.provider;
+                providerEl.className = 'provider-name';
+            }
+        }
+
+        displayResults(data);
+    } catch(e){
+        alert('Error: ' + e.message);
+    }
+}
+
+function displayResults(data){
+    var propositions = data.propositions || [];
+    var conjunctionResult = data.conjunction_result;
+    var searchEvidence = data.search_evidence;
+
+    window._lastPropositions = propositions;
+
+    var chips = document.getElementById('truthChips');
+    chips.innerHTML = propositions.map(function(p){
+        return '<span class="chip '+(p.value?'true':'false')+'">'+p.letter+' = '+(p.value?'True':'False')+'</span>';
+    }).join('') + '<span class="chip '+(conjunctionResult?'true':'false')+'">Conjunction = '+(conjunctionResult?'True':'False')+'</span>';
+
+    var sourcesHtml = '';
+    if (searchEvidence && searchEvidence.results) {
+        sourcesHtml = '<div class="section-label mt-12">Sources</div>';
+        sourcesHtml += searchEvidence.results.map(function(r) {
+            return '<div class="source-item"><a href="' + (r.url || r.link) + '" target="_blank">' + (r.title || 'Source') + '</a></div>';
+        }).join('');
+    }
+    if (searchEvidence && searchEvidence.answer) {
+        sourcesHtml = '<div class="section-label mt-12">Synthesized Answer</div>' +
+            '<div class="assessment-item">' + searchEvidence.answer + '</div>' + sourcesHtml;
+    }
+    var details = propositions.map(function(p){
+        return '<div class="assessment-item"><strong>'+p.letter+':</strong> "'+p.text+'"'+
+            ' &nbsp;<span class="chip '+(p.value?'true':'false')+'">'+(p.value?'TRUE':'FALSE')+'</span>'+
+            '<div class="exp">Assessment: '+p.explanation+'</div></div>';
+    }).join('');
+    document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + sourcesHtml;
+
+    var box = document.getElementById('resultBox');
+    var letters = propositions.map(function(x){ return x.letter; }).join(' ? ');
+    if(conjunctionResult){
+        box.className = 'result-box verified';
+        document.getElementById('resultStatus').innerHTML = '&#9989; Status: Verified';
+        document.getElementById('resultFormula').textContent = letters + ' = T';
+        document.getElementById('resultMessage').textContent = 'All propositions are true. The claim meets verification standards and is safe to share.';
+    } else {
+        box.className = 'result-box unverified';
+        document.getElementById('resultStatus').innerHTML = '&#9888; Status: Unverified / High Misinformation Risk';
+        document.getElementById('resultFormula').textContent = letters + ' = F';
+        var falses = propositions.filter(function(x){ return !x.value; }).map(function(x){ return x.letter; });
+        document.getElementById('resultMessage').textContent = 'Because proposition(s) ['+falses.join(', ')+'] are False, the conjunction fails. The claim carries a high misinformation risk and should NOT be shared without verification.';
+    }
+    box.style.display = 'block';
+    drawTruthTable(propositions.map(function(x){ return x.letter; }), conjunctionResult);
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function drawTruthTable(letters, highlightResult){
+    var table = document.getElementById('truthTable');
+    var rows = Math.pow(2, letters.length);
+    var html = '<tr>';
+    letters.forEach(function(l){ html += '<th>'+l+'</th>'; });
+    html += '<th>' + letters.join(' ? ') + '</th></tr>';
+    for(var i=0;i<rows;i++){
+        var vals = [];
+        for(var b=0;b<letters.length;b++){
+            vals.push( ((i >> (letters.length-1-b)) & 1) === 1 );
+        }
+        var res = vals.every(function(v){ return v; });
+        html += '<tr>';
+        vals.forEach(function(v){
+            html += '<td class="'+(v?'res-true':'res-false')+'">'+(v?'T':'F')+'</td>';
+        });
+        var isCurrent = false;
+        if(highlightResult !== undefined && window._lastPropositions){
+            var currentVals = window._lastPropositions.map(function(p){ return p.value; });
+            isCurrent = (vals.join(',') === currentVals.join(','));
+        }
+        html += '<td class="'+(res?'res-true':'res-false')+'">'+(res?'T':'F')+(isCurrent?' ?':'')+'</td>';
+        html += '</tr>';
+    }
+    table.innerHTML = html;
+}
+
+/* ===================== 2) VISUAL METRICS ===================== */
+function setupCanvas(canvas){
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var w = rect.width || canvas.clientWidth || 600;
+    var h = parseInt(canvas.getAttribute('height'),10) || 200;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return { ctx: ctx, w: w, h: h };
+}
+
+function drawTrend(canvas, labels, verifiedData, totalData){
+    var s = setupCanvas(canvas);
+    var ctx = s.ctx, w = s.w, h = s.h;
+    ctx.clearRect(0,0,w,h);
+    var padL = 38, padR = 14, padT = 16, padB = 28;
+    var plotW = w - padL - padR, plotH = h - padT - padB;
+    var maxV = Math.max.apply(null, totalData) * 1.2 || 600;
+    function x(i){ return padL + (plotW * i/(labels.length-1)); }
+    function y(v){ return padT + plotH * (1 - v/maxV); }
+    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
+    ctx.font = '11px Segoe UI, sans-serif'; ctx.textAlign = 'center';
+    for(var g=0; g<=4; g++){
+        var gv = maxV*g/4;
+        var gy = y(gv);
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
+        ctx.textAlign = 'right'; ctx.fillText(Math.round(gv), padL-6, gy+4);
+    }
+    ctx.textAlign = 'center';
+    labels.forEach(function(lb,i){ ctx.fillText(lb, x(i), h-8); });
+    function plot(data, color){
+        ctx.beginPath();
+        data.forEach(function(v,i){ var px=x(i), py=y(v); if(i===0){ctx.moveTo(px,py);} else {ctx.lineTo(px,py);} });
+        ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+        data.forEach(function(v,i){ ctx.beginPath(); ctx.arc(x(i), y(v), 3.5, 0, 7); ctx.fillStyle=color; ctx.fill(); });
+    }
+    plot(totalData, '#0057b8');
+    plot(verifiedData, '#22c55e');
+    ctx.fillStyle = '#0057b8'; ctx.font = '11px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('� Total claims', padL+4, padT+10);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillText('� Verified', padL+90, padT+10);
+}
+
+function drawBars(canvas, labels, values, colors){
+    var s = setupCanvas(canvas);
+    var ctx = s.ctx, w = s.w, h = s.h;
+    ctx.clearRect(0,0,w,h);
+    var padL = 38, padR = 14, padT = 16, padB = 28;
+    var plotW = w - padL - padR, plotH = h - padT - padB;
+    var maxV = Math.max.apply(null, values) * 1.15 || 100;
+    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
+    ctx.font = '11px Segoe UI, sans-serif';
+    for(var g=0; g<=4; g++){
+        var gv = maxV*g/4;
+        var gy = padT + plotH*(1 - gv/maxV);
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
+        ctx.textAlign='right'; ctx.fillText(Math.round(gv), padL-6, gy+4);
+    }
+    var bw = plotW / labels.length * 0.6;
+    var step = plotW / labels.length;
+    labels.forEach(function(lb,i){
+        var v = values[i];
+        var bh = plotH * (v/maxV);
+        var bx = padL + step*i + (step-bw)/2;
+        var by = padT + plotH - bh;
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.fillStyle = '#0f1a41'; ctx.font = 'bold 12px Segoe UI'; ctx.textAlign='center';
+        ctx.fillText(v, bx+bw/2, by-6);
+        ctx.fillStyle = '#5b6478'; ctx.font = '11px Segoe UI';
+        ctx.fillText(lb, bx+bw/2, h-8);
+    });
+}
+
+async function loadMetrics(){
+    try {
+        var resp = await fetch('/api/metrics');
+        if (!resp.ok) {
+            const text = await resp.text();
+            console.error('Metrics fetch failed:', resp.status, text.slice(0, 200));
+            return;
+        }
+        var text = await resp.text();
+        if (!text.trim()) {
+            console.error('Metrics returned empty response');
+            return;
+        }
+        var data = JSON.parse(text);
+        if(data.error) return;
+
+        document.getElementById('statTotal').textContent = data.total.toLocaleString();
+        document.getElementById('statVerified').textContent = data.verified.toLocaleString();
+        document.getElementById('statFlagged').textContent = data.flagged.toLocaleString();
+        var pct = data.total ? Math.round((data.verified/data.total)*100) : 0;
+        document.getElementById('statConf').textContent = pct + '%';
+
+        if(data.weekly && data.weekly.length > 0){
+            var labels = data.weekly.map(function(w){ return w.date; });
+            var totalData = data.weekly.map(function(w){ return w.count; });
+            var verifiedData = data.weekly.map(function(w){ return w.verified || 0; });
+            drawTrend(document.getElementById('trendChart'), labels, verifiedData, totalData);
+        }
+
+        if(data.byMode && data.byMode.length > 0){
+            var modeLabels = data.byMode.map(function(m){ return m.mode; });
+            var modeValues = data.byMode.map(function(m){ return m.count; });
+            var modeColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf'];
+            drawBars(document.getElementById('barChart'), modeLabels, modeValues, modeColors);
+        }
+    } catch(e){
+        console.error('Failed to load metrics:', e);
+    }
+}
+
+function renderKnowledgeBase(){
+  document.getElementById('kbOutlets').innerHTML =
+    TRUSTED_OUTLETS.slice(0,14).map(function(o){ return '<span class="chip true">'+o+'</span>'; }).join('');
+  document.getElementById('kbClaims').innerHTML =
+    VERIFIED_CLAIMS.map(function(c){
+      return '<div class="kb-claim"><span class="chip true">'+c.outlet+'</span> '+c.claim+'</div>';
+    }).join('');
+}
+
+window.addEventListener('load', function(){
+    renderKnowledgeBase();
+    loadMetrics();
+});
+
+/* ===================== 3) QUIZ GAME ===================== */
+var quizQuestions = [
+    { q: 'In propositional logic, what does the conjunction "p AND q" evaluate to when p is True and q is False?',
+      options: ['True','False','Unknown','Both True and False'], answer: 1 },
+    { q: 'What is "confirmation bias"?',
+      options: ['Believing everything you read','Favoring info that confirms existing beliefs','Double-checking sources','A type of logical fallacy about the person'], answer: 1 },
+    { q: 'Which of the following is a common warning sign of misinformation?',
+      options: ['Cites a peer-reviewed study','Uses emotional, urgent language with no sources','Links to a government site','Has a clear author'], answer: 1 },
+    { q: 'A "primary source" is:',
+      options: ['A summary by a blogger','The original document or firsthand record','A meme','A secondhand news report'], answer: 1 },
+    { q: 'What is a "deepfake"?',
+      options: ['A thorough fact-check','AI-generated media that mimics real people','A type of earthquake','A verified news clip'], answer: 1 },
+    { q: 'If propositions p, q, and r are ALL True, what is (p AND q AND r)?',
+      options: ['True','False','Depends on context','Undefined'], answer: 0 },
+    { q: 'The main purpose of a fact-checker is to:',
+      options: ['Promote one side','Verify claims against evidence','Entertain readers','Sell ads'], answer: 1 },
+    { q: 'Which is NOT generally a reliable source?',
+      options: ['Reuters','A peer-reviewed journal','An anonymous screenshot with no citation','BBC News'], answer: 2 },
+    { q: 'What does "corroboration" mean in fact-checking?',
+      options: ['Repeating a claim','Independent sources agreeing on a fact','Deleting evidence','A logical operator'], answer: 1 },
+    { q: 'Claims designed to trigger strong emotion to bypass critical thinking are examples of:',
+      options: ['Logical reasoning','Emotional manipulation / clickbait','Primary sourcing','Corroboration'], answer: 1 },
+    { q: 'Attacking the person making an argument instead of the argument itself is the:',
+      options: ['Strawman fallacy','Ad hominem fallacy','Slippery slope','Appeal to authority'], answer: 1 },
+    { q: 'If p is False, what is the value of (p AND q) regardless of q?',
+      options: ['True','False','True only if q is True','Cannot determine'], answer: 1 }
+];
+
+var currentQ = 0, score = 0, timeLeft = 30, timerId = null, answered = false;
+
+function startQuiz(){
+    currentQ = 0; score = 0; answered = false;
+    document.getElementById('quizStart').style.display = 'none';
+    document.getElementById('quizEnd').style.display = 'none';
+    document.getElementById('quizBody').style.display = 'block';
+    document.getElementById('quizScore').textContent = '0';
+    nextQuestion();
+}
+
+function nextQuestion(){
+    clearInterval(timerId);
+    if(currentQ >= quizQuestions.length){ showResults(); return; }
+    answered = false;
+    var item = quizQuestions[currentQ];
+    document.getElementById('quizCounter').textContent = 'Question '+(currentQ+1)+' / '+quizQuestions.length;
+    document.getElementById('quizQuestion').textContent = item.q;
+    document.getElementById('quizFeedback').textContent = '';
+    var opts = document.getElementById('quizOptions');
+    opts.innerHTML = '';
+    item.options.forEach(function(optText, i){
+        var b = document.createElement('button');
+        b.className = 'quiz-option';
+        b.textContent = optText;
+        b.onclick = function(){ selectOption(i); };
+        opts.appendChild(b);
+    });
+    timeLeft = 30;
+    updateTimer();
+    timerId = setInterval(function(){
+        timeLeft--;
+        updateTimer();
+        if(timeLeft <= 0){
+            clearInterval(timerId);
+            if(!answered){ selectOption(-1); }
+        }
+    }, 1000);
+}
+
+function updateTimer(){
+    document.getElementById('timerText').textContent = timeLeft + 's';
+    var pct = (timeLeft/30)*100;
+    document.getElementById('timerFill').style.width = pct + '%';
+}
+
+function selectOption(idx){
+    if(answered) return;
+    answered = true;
+    clearInterval(timerId);
+    var item = quizQuestions[currentQ];
+    var btns = document.getElementById('quizOptions').children;
+    for(var i=0;i<btns.length;i++){
+        btns[i].disabled = true;
+        if(i === item.answer){ btns[i].classList.add('correct'); }
+        else if(i === idx){ btns[i].classList.add('wrong'); }
+    }
+    if(idx === item.answer){
+        score++;
+        document.getElementById('quizScore').textContent = score;
+        document.getElementById('quizFeedback').textContent = '? Correct!';
+    } else if(idx === -1){
+        document.getElementById('quizFeedback').textContent = '? Time is up! Correct answer: ' + item.options[item.answer];
+    } else {
+        document.getElementById('quizFeedback').textContent = '? Incorrect. Correct answer: ' + item.options[item.answer];
+    }
+    setTimeout(function(){ currentQ++; nextQuestion(); }, 1200);
+}
+
+function showResults(){
+    document.getElementById('quizBody').style.display = 'none';
+    document.getElementById('quizEnd').style.display = 'block';
+    var total = quizQuestions.length;
+    var pct = Math.round((score/total)*100);
+    document.getElementById('endScore').textContent = score + ' / ' + total;
+    document.getElementById('endPct').textContent = pct + '% Correct';
+    var msg;
+    if(pct >= 90){ msg = 'Excellent! You are highly resilient to misinformation and fluent in logic.'; }
+    else if(pct >= 70){ msg = 'Great work � you have a solid grasp of fact-checking and logic.'; }
+    else if(pct >= 50){ msg = 'Not bad. Review the topics above to sharpen your verification skills.'; }
+    else { msg = 'Keep practicing! Understanding sources, corroboration, and logic helps fight misinformation.'; }
+    document.getElementById('endMsg').textContent = msg;
+}
+</script>
 </body>
 </html>
+
