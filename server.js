@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 const { callLLM, getProviderStats } = require('./lib/llm-providers');
+const { supabase, insertCheck, getMetrics, upsertProviderStats, getAllProviderStats } = require('./lib/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,8 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-
-const checks = [];
 
 async function searchWeb(claim) {
   const apiKey = process.env.SEARCH_API_KEY;
@@ -104,14 +103,37 @@ app.post('/api/check-claim', async (req, res) => {
     const conjunctionResult = !!result.conjunction_result;
     const provider = result.provider || 'heuristic';
 
-    checks.push({
+    const checkRecord = {
       claim,
       mode: 'text',
       propositions: JSON.stringify(result.propositions),
       conjunction_result: conjunctionResult ? 1 : 0,
       search_evidence: searchEvidence ? JSON.stringify(searchEvidence) : null,
       created_at: new Date().toISOString()
-    });
+    };
+
+    try {
+      await insertCheck(checkRecord);
+    } catch (err) {
+      console.error('Failed to insert check into database:', err);
+    }
+
+    try {
+      await upsertProviderStats({
+        name: provider,
+        model: result.model || 'unknown',
+        stats: {
+          calls: 1,
+          successes: conjunctionResult ? 1 : 0,
+          failures: conjunctionResult ? 0 : 1,
+          lastError: null,
+          rateLimitCount: 0,
+          suspendedUntil: null
+        }
+      });
+    } catch (err) {
+      console.error('Failed to update provider stats:', err);
+    }
 
     res.json({
       claim,
@@ -140,58 +162,8 @@ app.get('/api/providers', async (req, res) => {
 
 app.get('/api/metrics', async (req, res) => {
   try {
-    const rows = checks.map(({ mode, conjunction_result, created_at }) => ({ mode, conjunction_result, created_at }));
-
-    const total = rows.length;
-    const verified = rows.filter(r => r.conjunction_result === 1).length;
-    const flagged = rows.filter(r => r.conjunction_result === 0).length;
-
-    const weeklyMap = new Map();
-    const weeklyVerifiedMap = new Map();
-    const byMode = {};
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      weeklyMap.set(key, 0);
-      weeklyVerifiedMap.set(key, 0);
-    }
-
-    rows.forEach(r => {
-      const date = r.created_at ? r.created_at.slice(0, 10) : null;
-      if (r.mode) {
-        byMode[r.mode] = byMode[r.mode] || { total: 0, verified: 0, flagged: 0 };
-        byMode[r.mode].total += 1;
-        if (r.conjunction_result === 1) {
-          byMode[r.mode].verified += 1;
-        }
-        if (r.conjunction_result === 0) {
-          byMode[r.mode].flagged += 1;
-        }
-      }
-      if (date && weeklyMap.has(date)) {
-        weeklyMap.set(date, (weeklyMap.get(date) || 0) + 1);
-        if (r.conjunction_result === 1) {
-          weeklyVerifiedMap.set(date, (weeklyVerifiedMap.get(date) || 0) + 1);
-        }
-      }
-    });
-
-    const weekly = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      weekly.push({ date: key, count: weeklyMap.get(key) || 0, verified: weeklyVerifiedMap.get(key) || 0 });
-    }
-
-    const byModeArray = Object.keys(byMode).map(mode => ({
-      mode,
-      count: byMode[mode].total
-    }));
-
-    res.json({ total, verified, flagged, weekly, byMode: byModeArray });
+    const data = await getMetrics();
+    res.json(data);
   } catch (e) {
     console.error('/api/metrics error:', e);
     res.status(500).json({ error: e.message });

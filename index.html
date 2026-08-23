@@ -12,7 +12,7 @@
 <header class="hero">
     <h1>&#128225; VerifiedPulse</h1>
     <h2>Logical Fact-Checking System</h2>
-    <p>VerifiedPulse uses mathematical propositional logic and live web evidence to evaluate claims. Type or paste any claim � our engine searches for corroborating sources, applies <strong>conjunction logic</strong>, and determines verification status.</p>
+    <p>VerifiedPulse uses mathematical propositional logic and live web evidence to evaluate claims. Type or paste any claim our engine searches for corroborating sources, applies <strong>conjunction logic</strong>, and determines verification status.</p>
 </header>
 
 <nav class="tabs">
@@ -41,7 +41,10 @@
         </div>
 
         <div class="btn-row">
-            <button class="btn" onclick="evaluateClaim()">Verify Claim</button>
+            <button id="verifyBtn" class="btn" onclick="evaluateClaim()">
+                <span class="btn-spinner" aria-hidden="true"></span>
+                <span class="btn-label">Verify Claim</span>
+            </button>
         </div>
         <div class="provider-status">
             <span class="provider-label">Active Provider:</span>
@@ -66,7 +69,7 @@
             <table class="truth" id="truthTable"></table>
         </div>
         <div class="logic-note">
-            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ? q ? r)</code>. For a <strong>Verified (True)</strong> status, <em>all</em> propositions must be true. If any single proposition is False, the conjunction evaluates to False and the claim is flagged as <strong>Unverified / High Misinformation Risk</strong>.
+            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ∧ q)</code>. For a <strong>Verified (True)</strong> status, <em>all</em> propositions must be true. If any single proposition is False, the conjunction evaluates to False and the claim is flagged as <strong>Unverified / High Misinformation Risk</strong>.
         </div>
     </div>
     <div class="card">
@@ -94,9 +97,29 @@
         <div class="chart-wrap"><canvas id="trendChart" height="260"></canvas></div>
     </div>
 
+    
+
     <div class="card">
-        <div class="chart-title">&#127942; Claims by Source Type</div>
+        <div class="chart-title">&#127942; Most Used Trusted Sources</div>
         <div class="chart-wrap"><canvas id="barChart" height="280"></canvas></div>
+        <div class="source-legend">
+            <div class="legend-group">
+                <div class="legend-title">Government Agencies</div>
+                <div class="legend-chips">PHIVOLCS, USGS, WHO, DOH, COMELEC, DepEd, BSP, PSE, PAGASA</div>
+            </div>
+            <div class="legend-group">
+                <div class="legend-title">International News</div>
+                <div class="legend-chips">Reuters, BBC, BBC News, AP, AFP</div>
+            </div>
+            <div class="legend-group">
+                <div class="legend-title">Scientific / Technical</div>
+                <div class="legend-chips">NASA, NASA.gov</div>
+            </div>
+            <div class="legend-group">
+                <div class="legend-title">Fact-Checking Orgs</div>
+                <div class="legend-chips">FactCheck.org, Snopes</div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -130,7 +153,7 @@
     </div>
 </section>
 
-<footer class="foot">VerifiedPulse � backend-powered fact-checking demo. Type a claim to check it via conjunction logic and live web evidence.</footer>
+<footer class="foot">VerifiedPulse backend-powered fact-checking demo. Type a claim to check it via conjunction logic and live web evidence.</footer>
 <script>
 /* ===================== SHARED ===================== */
 function showTab(name){
@@ -184,6 +207,9 @@ var VERIFIED_CLAIMS = [
 async function evaluateClaim(){
     var claim = document.getElementById('claimInput').value.trim();
     if(!claim) return alert('Please enter a claim to verify');
+
+    var btn = document.getElementById('verifyBtn');
+    setLoading(btn, true);
 
     var propP = document.getElementById('propP').value.trim();
     var propQ = document.getElementById('propQ').value.trim();
@@ -246,7 +272,15 @@ async function evaluateClaim(){
         displayResults(data);
     } catch(e){
         alert('Error: ' + e.message);
+    } finally {
+        setLoading(btn, false);
     }
+}
+
+function setLoading(btn, isLoading){
+    if(!btn) return;
+    btn.classList.toggle('loading', isLoading);
+    btn.disabled = isLoading;
 }
 
 function displayResults(data){
@@ -280,7 +314,7 @@ function displayResults(data){
     document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + sourcesHtml;
 
     var box = document.getElementById('resultBox');
-    var letters = propositions.map(function(x){ return x.letter; }).join(' ? ');
+    var letters = propositions.map(function(x){ return x.letter; }).join(' ∧ ');
     if(conjunctionResult){
         box.className = 'result-box verified';
         document.getElementById('resultStatus').innerHTML = '&#9989; Status: Verified';
@@ -303,7 +337,7 @@ function drawTruthTable(letters, highlightResult){
     var rows = Math.pow(2, letters.length);
     var html = '<tr>';
     letters.forEach(function(l){ html += '<th>'+l+'</th>'; });
-    html += '<th>' + letters.join(' ? ') + '</th></tr>';
+    html += '<th>' + letters.join(' ∧ ') + '</th></tr>';
     for(var i=0;i<rows;i++){
         var vals = [];
         for(var b=0;b<letters.length;b++){
@@ -319,7 +353,7 @@ function drawTruthTable(letters, highlightResult){
             var currentVals = window._lastPropositions.map(function(p){ return p.value; });
             isCurrent = (vals.join(',') === currentVals.join(','));
         }
-        html += '<td class="'+(res?'res-true':'res-false')+'">'+(res?'T':'F')+(isCurrent?' ?':'')+'</td>';
+        html += '<td class="'+(res?'res-true':'res-false')+'">'+(res?'T':'F')+(isCurrent?' ✓':'')+'</td>';
         html += '</tr>';
     }
     table.innerHTML = html;
@@ -342,6 +376,13 @@ function drawTrend(canvas, labels, verifiedData, totalData){
     var s = setupCanvas(canvas);
     var ctx = s.ctx, w = s.w, h = s.h;
     ctx.clearRect(0,0,w,h);
+    if(!labels || labels.length === 0){
+        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('No weekly data available yet', w/2, h/2);
+        ctx.font = '11px Segoe UI, sans-serif';
+        ctx.fillText('Run a few fact-checks to populate the trend chart', w/2, h/2 + 22);
+        return;
+    }
     var padL = 38, padR = 14, padT = 16, padB = 28;
     var plotW = w - padL - padR, plotH = h - padT - padB;
     var maxV = Math.max.apply(null, totalData) * 1.2 || 600;
@@ -366,15 +407,22 @@ function drawTrend(canvas, labels, verifiedData, totalData){
     plot(totalData, '#0057b8');
     plot(verifiedData, '#22c55e');
     ctx.fillStyle = '#0057b8'; ctx.font = '11px Segoe UI'; ctx.textAlign='left';
-    ctx.fillText('� Total claims', padL+4, padT+10);
+    ctx.fillText('● Total claims', padL+4, padT+10);
     ctx.fillStyle = '#22c55e';
-    ctx.fillText('� Verified', padL+90, padT+10);
+    ctx.fillText('● Verified', padL+90, padT+10);
 }
 
 function drawBars(canvas, labels, values, colors){
     var s = setupCanvas(canvas);
     var ctx = s.ctx, w = s.w, h = s.h;
     ctx.clearRect(0,0,w,h);
+    if(!labels || labels.length === 0){
+        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('No source data available yet', w/2, h/2);
+        ctx.font = '11px Segoe UI, sans-serif';
+        ctx.fillText('Run a few fact-checks to populate this chart', w/2, h/2 + 22);
+        return;
+    }
     var padL = 38, padR = 14, padT = 16, padB = 28;
     var plotW = w - padL - padR, plotH = h - padT - padB;
     var maxV = Math.max.apply(null, values) * 1.15 || 100;
@@ -408,37 +456,50 @@ async function loadMetrics(){
         if (!resp.ok) {
             const text = await resp.text();
             console.error('Metrics fetch failed:', resp.status, text.slice(0, 200));
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
             return;
         }
         var text = await resp.text();
         if (!text.trim()) {
             console.error('Metrics returned empty response');
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
             return;
         }
         var data = JSON.parse(text);
-        if(data.error) return;
-
-        document.getElementById('statTotal').textContent = data.total.toLocaleString();
-        document.getElementById('statVerified').textContent = data.verified.toLocaleString();
-        document.getElementById('statFlagged').textContent = data.flagged.toLocaleString();
-        var pct = data.total ? Math.round((data.verified/data.total)*100) : 0;
-        document.getElementById('statConf').textContent = pct + '%';
-
-        if(data.weekly && data.weekly.length > 0){
-            var labels = data.weekly.map(function(w){ return w.date; });
-            var totalData = data.weekly.map(function(w){ return w.count; });
-            var verifiedData = data.weekly.map(function(w){ return w.verified || 0; });
-            drawTrend(document.getElementById('trendChart'), labels, verifiedData, totalData);
+        if(data.error) {
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+            return;
         }
-
-        if(data.byMode && data.byMode.length > 0){
-            var modeLabels = data.byMode.map(function(m){ return m.mode; });
-            var modeValues = data.byMode.map(function(m){ return m.count; });
-            var modeColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf'];
-            drawBars(document.getElementById('barChart'), modeLabels, modeValues, modeColors);
-        }
+        updateMetricsUI(data);
     } catch(e){
         console.error('Failed to load metrics:', e);
+        updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+    }
+}
+
+function updateMetricsUI(data){
+    document.getElementById('statTotal').textContent = (data.total || 0).toLocaleString();
+    document.getElementById('statVerified').textContent = (data.verified || 0).toLocaleString();
+    document.getElementById('statFlagged').textContent = (data.flagged || 0).toLocaleString();
+    var pct = data.total ? Math.round((data.verified/data.total)*100) : 0;
+    document.getElementById('statConf').textContent = pct + '%';
+
+    if(data.weekly && data.weekly.length > 0){
+        var labels = data.weekly.map(function(w){ return w.date; });
+        var totalData = data.weekly.map(function(w){ return w.count; });
+        var verifiedData = data.weekly.map(function(w){ return w.verified || 0; });
+        drawTrend(document.getElementById('trendChart'), labels, verifiedData, totalData);
+    } else {
+        drawTrend(document.getElementById('trendChart'), [], [], []);
+    }
+
+    if(data.trustedSources && data.trustedSources.length > 0){
+        var modeLabels = data.trustedSources.map(function(m){ return m.category; });
+        var modeValues = data.trustedSources.map(function(m){ return m.count; });
+        var modeColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf'];
+        drawBars(document.getElementById('barChart'), modeLabels, modeValues, modeColors);
+    } else {
+        drawBars(document.getElementById('barChart'), [], [], []);
     }
 }
 

@@ -105,6 +105,22 @@ nav.tabs button.active {
   box-shadow: none;
 }
 .btn.ghost:hover { background: rgba(0, 87, 184, 0.06); }
+.btn.loading { opacity: 0.85; cursor: progress; }
+.btn.loading .btn-label { margin-left: 4px; }
+.btn-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+.btn.loading .btn-spinner { display: inline-block; vertical-align: middle; }
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .btn-spinner { animation-duration: 1.4s; }
+}
 .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
 /* ===================== INPUT MODE ===================== */
@@ -248,6 +264,13 @@ nav.tabs button.active {
 .chart-title { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
 .chart-wrap { position: relative; }
 .chart-wrap canvas { width: 100%; height: auto; display: block; }
+.source-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.legend-group { background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid var(--line); }
+.legend-title { font-size: 0.78rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.legend-chips { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+@media (max-width: 768px) {
+  .source-legend { grid-template-columns: 1fr; }
+}
 
 /* ===================== QUIZ ===================== */
 .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; color: var(--navy); }
