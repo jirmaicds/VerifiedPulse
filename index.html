@@ -270,6 +270,7 @@ async function evaluateClaim(){
         }
 
         displayResults(data);
+        loadMetrics();
     } catch(e){
         alert('Error: ' + e.message);
     } finally {

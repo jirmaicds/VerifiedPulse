@@ -9,7 +9,7 @@
 │ (index.html)│     │(server.js)  │     │  API        │
 └─────────────┘     └─────────────┘     └─────────────┘
         │                  │
-        │                  ├──▶ SQLite / Supabase DB (verifiedpulse.db)
+        │                  ├──▶ Supabase (PostgreSQL)
         │                  │
         └──▶ Metrics & Stats dashboard
 ```
@@ -29,7 +29,7 @@
 
 - **Frontend**: HTML/CSS/JS (static, served by Express)
 - **Backend**: Node.js + Express
-- **Database**: SQLite (`verifiedpulse.db`) or Supabase
+- **Database**: Supabase (PostgreSQL)
 - **LLM**: Configurable (OpenAI, Anthropic, etc.) with built-in heuristic fallback
 - **Search**: DuckDuckGo HTML scraper (default) or configurable search API (Tavily, Serper, etc.)
 
@@ -66,12 +66,26 @@
 
 ```sql
 CREATE TABLE checks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     claim TEXT NOT NULL,
     mode TEXT NOT NULL,           -- 'text'
     propositions TEXT NOT NULL,   -- JSON array
     conjunction_result INTEGER,   -- 1 = verified, 0 = flagged
     search_evidence TEXT,         -- JSON of search results
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+```sql
+CREATE TABLE providers (
+    name TEXT PRIMARY KEY,
+    model TEXT,
+    calls INTEGER DEFAULT 0,
+    successes INTEGER DEFAULT 0,
+    failures INTEGER DEFAULT 0,
+    last_error TEXT,
+    last_used TIMESTAMPTZ,
+    rate_limit_count INTEGER DEFAULT 0,
+    suspended_until TIMESTAMPTZ
 );
 ```
