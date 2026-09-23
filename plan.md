@@ -60,7 +60,7 @@
 - Set `LLM_API_KEY`, `LLM_API_URL`, and `LLM_MODEL` in `.env`
 - Without an LLM API key, the system uses a built-in heuristic simulator
 - The LLM is prompted to return JSON propositions with truth values
-- Frontend applies conjunction logic: `p ∧ q ∧ r ≡ T` only if all are true
+- Frontend applies conjunction logic: `p ∧ q ≡ T` only if all are true
 
 ## Database Schema
 
