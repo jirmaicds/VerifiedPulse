@@ -12,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.post('/api/check-claim', async (req, res) => {
   try {
     await handleCheckClaim(req, res);
