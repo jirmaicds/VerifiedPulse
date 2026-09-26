@@ -10,7 +10,10 @@ VerifiedPulse is a **logical fact-checking system** that evaluates claims using 
 
 ### Step 1: User Submits a Claim
 
-The user enters a text claim on the frontend (`index.html`) and optionally defines custom propositions (e.g., "Is this claim supported by credible evidence?"). The claim is sent as a POST request to `/api/check-claim`.
+The user enters a text claim on the frontend (`index.html`). The claim is sent as a POST request to `/api/check-claim`. The backend evaluates the claim against two **fixed propositions** that are defined in the backend code (`lib/llm-providers.js`, `FIXED_PROPOSITIONS`):
+
+- **P**: Is the claim backed by an official statement, announcement, or memorandum?
+- **Q**: Is the information reported or confirmed by a credible news outlet, fact-checking organization, or recognized expert institution?
 
 ### Step 2: Web Search for Corroborating Evidence
 
@@ -62,9 +65,10 @@ Code location: `lib/llm-providers.js` — `buildProviders()` (lines 59–104)
 
 1. Search evidence is formatted into a prompt block (`formatSearchEvidence()`, lines 115–148)
 2. The user's claim is appended
-3. If custom propositions are provided, they are listed as sub-claim questions to evaluate
-4. The LLM is instructed to return **JSON only** with a `propositions` array, each containing `letter`, `text`, `value` (true/false), and `explanation`
-5. Temperature is set to `0.2` for low randomness (deterministic evaluation)
+3. The LLM is instructed to evaluate the two **fixed propositions** — P (official statement) and Q (credible news/fact-checking source) — as sub-claim questions
+4. The LLM returns **JSON only** with a `propositions` array, each containing `letter`, `text`, `value` (true/false), and `explanation`
+5. The backend enforces the fixed proposition text so P and Q definitions stay consistent
+6. Temperature is set to `0.2` for low randomness (deterministic evaluation)
 
 Code location: `lib/llm-providers.js` — `callProvider()` (lines 209–306)
 
@@ -173,10 +177,10 @@ PORT=3000
 |------|------|
 | `server.js` | Express entry point, routes |
 | `lib/check-claim-handler.js` | Main fact-check pipeline (search + LLM + DB insert) |
-| `lib/llm-providers.js` | LLM provider management, prompting, source filtering, heuristic fallback |
+| `lib/llm-providers.js` | LLM provider management, prompting, source filtering, heuristic fallback, fixed P & Q propositions |
 | `lib/database.js` | Supabase DB operations (insert checks, metrics queries) |
 | `lib/http.js` | HTTP helpers (JSON body parsing, responses) |
-| `index.html` | Frontend: claim input, results, truth table, metrics, quiz |
+| `index.html` | Frontend: claim input, fixed propositions P & Q display, truth table, metrics, quiz |
 | `assets/style.css` | Complete stylesheet |
 | `.env.example` | Configuration template |
 | `plan.md` | System architecture overview |

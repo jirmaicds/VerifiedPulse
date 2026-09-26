@@ -148,31 +148,25 @@ nav.tabs button.active {
 .input-mode textarea::placeholder,
 .input-mode input[type="text"]::placeholder { color: #aab3c7; }
 
-/* ===================== PROPOSITION INPUTS ===================== */
-.prop-input-row { margin-bottom: 10px; }
-.prop-input-row:last-child { margin-bottom: 0; }
-.prop-input-row label {
-  display: block;
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: var(--navy);
-  margin-bottom: 8px;
-}
-.prop-input-row input[type="text"] {
-  width: 100%;
+/* ===================== FIXED PROPOSITIONS DISPLAY ===================== */
+.propositions-fixed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 14px 16px;
   border: 2px solid var(--line);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 0.96rem;
-  font-family: inherit;
-  color: var(--navy);
-  background: #fff;
-  transition: border-color .2s ease, box-shadow .2s ease;
+  background: #f8f9fc;
 }
-.prop-input-row input[type="text"]:focus {
-  outline: none;
-  border-color: var(--blue);
-  box-shadow: 0 0 0 4px rgba(0, 87, 184, 0.12);
+.prop-fixed-row {
+  font-size: 0.94rem;
+  line-height: 1.5;
+  color: var(--navy);
+}
+.prop-fixed-row strong {
+  color: var(--blue);
+  font-weight: 700;
 }
 
 /* ===================== RESULT BOX ===================== */
@@ -262,14 +256,38 @@ nav.tabs button.active {
 .num { font-size: 2rem; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
 .lbl { font-size: 0.82rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
 .chart-title { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
-.chart-wrap { position: relative; }
-.chart-wrap canvas { width: 100%; height: auto; display: block; }
+.chart-wrap { position: relative; width: 100%; height: 260px; }
+.chart-wrap canvas { width: 100%; height: 100%; display: block; }
 .source-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .legend-group { background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid var(--line); }
-.legend-title { font-size: 0.78rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.gov-agencies { font-size: 0.78rem; font-weight: 800; color: #22c55e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.international-news { font-size: 0.78rem; font-weight: 800; color: #0057b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.scientific_technical { font-size: 0.78rem; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.fact-checking{ font-size: 0.78rem; font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .legend-chips { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
 @media (max-width: 768px) {
   .source-legend { grid-template-columns: 1fr; }
+}
+
+/* ===================== RESPONSIVE CHARTS ===================== */
+@media (max-width: 768px) {
+  .hero { padding: 28px 16px 22px; }
+  .hero h1 { font-size: 1.8rem; }
+  .hero h2 { font-size: 1rem; }
+  .panel { padding: 14px 12px 32px; }
+  .card { padding: 16px; }
+  nav.tabs button { padding: 10px 14px; font-size: 0.9rem; }
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .result-header { flex-direction: column; align-items: flex-start; }
+  .quiz-options { grid-template-columns: 1fr; }
+  .chart-wrap canvas { height: 260px; }
+}
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .chart-wrap canvas { height: 220px; }
+  .num { font-size: 1.6rem; }
 }
 
 /* ===================== QUIZ ===================== */
