@@ -91,7 +91,17 @@
     </div>
 
     <div class="card">
-        <div class="chart-title">&#128200; Weekly Claim Volume &amp; Verification Trend</div>
+        <h3><span class="ico">&#9888;</span> Misinformation Tracking</h3>
+        <div class="stat-grid">
+            <div class="stat"><div class="num" id="statMisinfoTotal">--</div><div class="lbl">Total Events</div></div>
+            <div class="stat"><div class="num" id="statMisinfoActive">--</div><div class="lbl">Active</div></div>
+            <div class="stat"><div class="num" id="statMisinfoResolved">--</div><div class="lbl">Resolved</div></div>
+            <div class="stat"><div class="num" id="statMisinfoAvgRisk">--</div><div class="lbl">Avg Risk Score</div></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-title">&#128200; Weekly Claim Volume & Verification Trend</div>
         <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
     </div>
 
@@ -116,6 +126,21 @@
                 <div class="legend-chips">FactCheck.org, Snopes</div>
             </div>
         </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-title">&#128187; Misinformation Risk Distribution</div>
+        <div class="chart-wrap"><canvas id="riskChart"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="chart-title">&#127760; Misinformation by Platform</div>
+        <div class="chart-wrap"><canvas id="platformChart"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="chart-title">&#128170; Misinformation Spread (Shares & Impressions)</div>
+        <div class="chart-wrap"><canvas id="spreadChart"></canvas></div>
     </div>
 </section>
 
@@ -149,7 +174,7 @@
     </div>
 </section>
 
-<footer class="foot">VerifiedPulse backend-powered fact-checking demo. Type a claim to check it via conjunction logic and live web evidence.</footer>
+<footer class="foot">VerifiedPulse is a Logical Fact-Checking System. Evaluates claims via fixed propositions P & Q with conjunction logic (p ∧ q), live web search evidence, and misinformation tracking across social platforms.</footer>
 <script>
 /* ===================== SHARED ===================== */
 function showTab(name){
@@ -463,6 +488,56 @@ function drawBars(canvas, labels, values, colors){
     });
 }
 
+function drawDualBars(canvas, labels, shares, impressions){
+    var s = setupCanvas(canvas);
+    var ctx = s.ctx, w = s.w, h = s.h;
+    ctx.clearRect(0,0,w,h);
+    if(!labels || labels.length === 0){
+        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('No spread data available yet', w/2, h/2);
+        ctx.font = '11px Segoe UI, sans-serif';
+        ctx.fillText('Run fact-checks with misinformation tracking to populate', w/2, h/2 + 22);
+        return;
+    }
+    var padL = 40, padR = 16, padT = 20, padB = 36;
+    var plotW = w - padL - padR, plotH = h - padT - padB;
+    var maxV = Math.max.apply(null, shares.concat(impressions)) * 1.15 || 100;
+    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
+    ctx.font = '11px Segoe UI, sans-serif';
+    for(var g=0; g<=4; g++){
+        var gv = maxV*g/4;
+        var gy = padT + plotH*(1 - gv/maxV);
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
+        ctx.textAlign='right'; ctx.fillText(Math.round(gv), padL-8, gy+4);
+    }
+    var bw = plotW / labels.length * 0.25;
+    var step = plotW / labels.length;
+    labels.forEach(function(lb,i){
+        var vShares = shares[i];
+        var vImpressions = impressions[i];
+        var bhShares = plotH * (vShares/maxV);
+        var bhImpressions = plotH * (vImpressions/maxV);
+        var bxShares = padL + step*i + (step-bw*2)/2;
+        var bxImpressions = bxShares + bw + 2;
+        var byShares = padT + plotH - bhShares;
+        var byImpressions = padT + plotH - bhImpressions;
+        ctx.fillStyle = '#0057b8';
+        ctx.fillRect(bxShares, byShares, bw, bhShares);
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(bxImpressions, byImpressions, bw, bhImpressions);
+        ctx.fillStyle = '#0f1a41'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign='center';
+        if (vShares > 0) ctx.fillText(vShares, bxShares+bw/2, byShares-4);
+        if (vImpressions > 0) ctx.fillText(vImpressions, bxImpressions+bw/2, byImpressions-4);
+        ctx.fillStyle = '#5b6478'; ctx.font = '11px Segoe UI';
+        ctx.fillText(lb, bxShares+bw/2 + bw/2 + 1, h-8);
+    });
+    // Legend
+    ctx.fillStyle = '#0057b8'; ctx.font = '12px Segoe UI'; ctx.textAlign='left';
+    ctx.fillText('● Shares', padL+4, padT+8);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillText('● Impressions', padL+70, padT+8);
+}
+
 var _resizeTimer = null;
 window.addEventListener('resize', function(){
     if(_resizeTimer) clearTimeout(_resizeTimer);
@@ -477,24 +552,24 @@ async function loadMetrics(){
         if (!resp.ok) {
             const text = await resp.text();
             console.error('Metrics fetch failed:', resp.status, text.slice(0, 200));
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
             return;
         }
         var text = await resp.text();
         if (!text.trim()) {
             console.error('Metrics returned empty response');
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
             return;
         }
         var data = JSON.parse(text);
         if(data.error) {
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
             return;
         }
         updateMetricsUI(data);
     } catch(e){
         console.error('Failed to load metrics:', e);
-        updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [] });
+        updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
     }
 }
 
@@ -505,6 +580,15 @@ function updateMetricsUI(data){
     document.getElementById('statFlagged').textContent = (data.flagged || 0).toLocaleString();
     var pct = data.total ? Math.round((data.verified/data.total)*100) : 0;
     document.getElementById('statConf').textContent = pct + '%';
+
+    // Misinformation metrics
+    if (data.misinformation) {
+      var m = data.misinformation;
+      document.getElementById('statMisinfoTotal').textContent = (m.totalEvents || 0).toLocaleString();
+      document.getElementById('statMisinfoActive').textContent = (m.activeEvents || 0).toLocaleString();
+      document.getElementById('statMisinfoResolved').textContent = (m.resolvedEvents || 0).toLocaleString();
+      document.getElementById('statMisinfoAvgRisk').textContent = (m.avgRiskScore || 0).toFixed(1);
+    }
 
     if(data.weekly && data.weekly.length > 0){
         var labels = data.weekly.map(function(w){ return w.date; });
@@ -522,6 +606,37 @@ function updateMetricsUI(data){
         drawBars(document.getElementById('barChart'), modeLabels, modeValues, modeColors);
     } else {
         drawBars(document.getElementById('barChart'), [], [], []);
+    }
+
+    // Misinformation Risk Distribution chart
+    if (data.misinformation && data.misinformation.riskDistribution) {
+      var rd = data.misinformation.riskDistribution;
+      drawBars(document.getElementById('riskChart'), ['Low', 'Medium', 'High'], [rd.low, rd.medium, rd.high], ['#22c55e', '#f59e0b', '#ef4444']);
+    } else {
+      drawBars(document.getElementById('riskChart'), [], [], []);
+    }
+
+    // Misinformation by Platform chart
+    var platformLabels = ['Twitter', 'Facebook', 'TikTok', 'WhatsApp', 'Telegram', 'Reddit', 'Other'];
+    if (data.misinformation && data.misinformation.platformBreakdown && data.misinformation.platformBreakdown.length > 0) {
+      var pb = data.misinformation.platformBreakdown;
+      platformLabels = pb.map(function(p){ return p.platform; });
+      var platformValues = pb.map(function(p){ return p.events; });
+      var platformColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf','#a855f7','#ec4899'];
+      drawBars(document.getElementById('platformChart'), platformLabels, platformValues, platformColors);
+    } else {
+      drawBars(document.getElementById('platformChart'), platformLabels, platformLabels.map(function(){ return 0; }), ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf','#a855f7','#ec4899']);
+    }
+
+    // Misinformation Spread chart (shares vs impressions)
+    if (data.misinformation && data.misinformation.platformBreakdown && data.misinformation.platformBreakdown.length > 0) {
+      var pb = data.misinformation.platformBreakdown;
+      var spreadLabels = pb.map(function(p){ return p.platform; });
+      var spreadShares = pb.map(function(p){ return p.shares; });
+      var spreadImpressions = pb.map(function(p){ return p.impressions; });
+      drawDualBars(document.getElementById('spreadChart'), spreadLabels, spreadShares, spreadImpressions);
+    } else {
+      drawDualBars(document.getElementById('spreadChart'), platformLabels, platformLabels.map(function(){ return 0; }), platformLabels.map(function(){ return 0; }));
     }
 }
 
