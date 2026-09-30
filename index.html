@@ -134,6 +134,12 @@
     </div>
 
     <div class="card">
+        <div class="chart-title">&#129302; Flagged Claims by Category</div>
+        <p class="section-desc">A failed conjunction is not automatically misinformation. Misinterpretations of real reporting are scored separately from claims with no supporting source at all.</p>
+        <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+    </div>
+
+    <div class="card">
         <div class="chart-title">&#127760; Misinformation by Platform</div>
         <div class="chart-wrap"><canvas id="platformChart"></canvas></div>
     </div>
@@ -308,8 +314,15 @@ function displayResults(data){
 
     var chips = document.getElementById('truthChips');
     chips.innerHTML = propositions.map(function(p){
-        return '<span class="chip '+(p.value?'true':'false')+'">'+p.letter+' = '+(p.value?'True':'False')+'</span>';
+        var st = p.state || (p.value ? 'true' : 'false');
+        var chipClass = st === 'true' ? 'true' : (st === 'unverified' ? 'unverified' : 'false');
+        return '<span class="chip '+chipClass+'">'+p.letter+' = '+st.charAt(0).toUpperCase()+st.slice(1)+'</span>';
     }).join('') + '<span class="chip '+(conjunctionResult?'true':'false')+'">Conjunction = '+(conjunctionResult?'True':'False')+'</span>';
+
+    if (data.risk && !conjunctionResult) {
+        chips.innerHTML += '<span class="chip risk-'+data.risk.severity+'">Risk '+data.risk.riskScore+' / 100</span>';
+        chips.innerHTML += '<span class="chip unverified">'+data.risk.categoryLabel+'</span>';
+    }
 
     var sourcesHtml = '';
     if (searchEvidence && searchEvidence.results) {
@@ -329,13 +342,24 @@ function displayResults(data){
             '<div class="assessment-item">' + searchEvidence.answer + '</div>' + sourcesHtml;
     }
     var details = propositions.map(function(p){
-        var validated = p.explanation && p.explanation.indexOf('[Validated:') !== -1;
+        var st = p.state || (p.value ? 'true' : 'false');
+        var chipClass = st === 'true' ? 'true' : (st === 'unverified' ? 'unverified' : 'false');
+        var label = st === 'true' ? 'TRUE' : (st === 'unverified' ? 'UNVERIFIED' : 'REFUTED');
         return '<div class="assessment-item"><strong>'+p.letter+':</strong> "'+p.text+'"'+
-            ' &nbsp;<span class="chip '+(p.value?'true':'false')+'">'+(p.value?'TRUE':'FALSE')+'</span>'+
-            (validated ? ' <span class="chip false" style="font-size:0.7rem;">Evidence-Validated</span>' : '')+
+            ' &nbsp;<span class="chip '+chipClass+'">'+label+'</span>'+
             '<div class="exp">Assessment: '+(p.explanation||'')+'</div></div>';
     }).join('');
-    document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + sourcesHtml;
+    var riskHtml = '';
+    if (data.risk && !data.risk.conjunctionResult) {
+        riskHtml = '<div class="section-label">Misinformation Risk Assessment</div>' +
+            '<div class="assessment-item"><div class="exp">Risk score <strong>'+data.risk.riskScore+'/100</strong> ('+data.risk.severity+') &mdash; '+data.risk.categoryLabel+'. ' +
+            'Propositions resolved: p = '+data.risk.pValue+', q = '+data.risk.qValue+'. ' +
+            (data.risk.isMisinformationCandidate
+                ? 'A claim with no supporting source is consistent with fabrication or invention.'
+                : 'This claim is not necessarily misinformation. The evidence is silent or the claim distorts real reporting; treat the risk as provisional.') +
+            '</div></div>';
+    }
+    document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + riskHtml + sourcesHtml;
 
     var box = document.getElementById('resultBox');
     var letters = propositions.map(function(x){ return x.letter; }).join(' ∧ ');
@@ -345,11 +369,35 @@ function displayResults(data){
         document.getElementById('resultFormula').textContent = letters + ' = T';
         document.getElementById('resultMessage').textContent = 'All propositions are true. The claim meets verification standards and is safe to share.';
     } else {
-        box.className = 'result-box unverified';
-        document.getElementById('resultStatus').innerHTML = '&#9888; Status: Unverified / High Misinformation Risk';
+        var risk = data.risk;
+        var refuted = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'false'; }).map(function(x){ return x.letter; });
+        var silent = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'unverified'; }).map(function(x){ return x.letter; });
+        var boxClass = 'result-box unverified';
+        var statusText = '&#9888; Status: Unverified / Misinformation Risk Assessed';
+        var messageText;
+
+        if (refuted.length > 0) {
+            boxClass = 'result-box unverified';
+            statusText = '&#10005; Status: Not Verified / Refuted Evidence Found';
+            messageText = 'Proposition(s) ['+refuted.join(', ')+'] are refuted by the evidence, so the conjunction fails. This claim is inconsistent with the available sources and should NOT be shared.';
+        } else if (risk && risk.isMisinformationCandidate) {
+            boxClass = 'result-box unverified';
+            statusText = '&#9888; Status: Unsupported / No Source Found';
+            messageText = 'No proposition resolved as verified and the other was refuted or unsupported. The claim has no supporting source, which is consistent with fabrication. It should NOT be shared without verification.';
+        } else {
+            boxClass = 'result-box unverified';
+            statusText = '&#9888; Status: Unverified / Insufficient Evidence';
+            messageText = 'Proposition(s) ['+silent.join(', ')+'] are unverified: the evidence is silent or does not address the claim, rather than contradicting it. This is not evidence of misinformation. The claim may be true, unproven, or a misinterpretation, and needs further checking before being trusted or dismissed.';
+        }
+
+        if (risk) {
+            statusText += ' (risk ' + risk.riskScore + '/100)';
+        }
+
+        box.className = boxClass;
+        document.getElementById('resultStatus').innerHTML = statusText;
         document.getElementById('resultFormula').textContent = letters + ' = F';
-        var falses = propositions.filter(function(x){ return !x.value; }).map(function(x){ return x.letter; });
-        document.getElementById('resultMessage').textContent = 'Because proposition(s) ['+falses.join(', ')+'] are False, the conjunction fails. The claim carries a high misinformation risk and should NOT be shared without verification.';
+        document.getElementById('resultMessage').textContent = messageText;
     }
     box.style.display = 'block';
     drawTruthTable(propositions.map(function(x){ return x.letter; }), conjunctionResult);
@@ -484,7 +532,16 @@ function drawBars(canvas, labels, values, colors){
         ctx.fillStyle = '#0f1a41'; ctx.font = 'bold 12px Segoe UI'; ctx.textAlign='center';
         ctx.fillText(v, bx+bw/2, by-6);
         ctx.fillStyle = '#5b6478'; ctx.font = '11px Segoe UI';
-        ctx.fillText(lb, bx+bw/2, h-8);
+        if (String(lb).length > 10) {
+            ctx.save();
+            ctx.translate(bx+bw/2, h-8);
+            ctx.rotate(-Math.PI/6);
+            ctx.textAlign = 'right';
+            ctx.fillText(lb, 0, 0);
+            ctx.restore();
+        } else {
+            ctx.fillText(lb, bx+bw/2, h-8);
+        }
     });
 }
 
@@ -616,8 +673,35 @@ function updateMetricsUI(data){
       drawBars(document.getElementById('riskChart'), [], [], []);
     }
 
+    // Flagged claims by category chart
+    if (data.misinformation && data.misinformation.categories && data.misinformation.categories.length > 0) {
+      var CATEGORY_LABELS = {
+        'likely-fabrication': 'Likely fabrication',
+        'unsupported-claim': 'Unsupported claim',
+        'possible-misinterpretation': 'Misinterpretation',
+        'insufficient-evidence': 'Insufficient evidence',
+        'uncorroborated-official': 'Uncorroborated official',
+        'verified': 'Verified'
+      };
+      var CATEGORY_COLORS = {
+        'likely-fabrication': '#ef4444',
+        'unsupported-claim': '#f97316',
+        'possible-misinterpretation': '#a855f7',
+        'insufficient-evidence': '#f59e0b',
+        'uncorroborated-official': '#2dd4bf',
+        'verified': '#22c55e'
+      };
+      var catEntries = data.misinformation.categories;
+      var catLabels = catEntries.map(function(c){ return CATEGORY_LABELS[c.category] || c.category; });
+      var catValues = catEntries.map(function(c){ return c.count; });
+      var catColors = catEntries.map(function(c){ return CATEGORY_COLORS[c.category] || '#0057b8'; });
+      drawBars(document.getElementById('categoryChart'), catLabels, catValues, catColors);
+    } else {
+      drawBars(document.getElementById('categoryChart'), ['Likely fabrication', 'Unsupported claim', 'Misinterpretation', 'Insufficient evidence'], [0, 0, 0, 0], ['#ef4444', '#f97316', '#a855f7', '#f59e0b']);
+    }
+
     // Misinformation by Platform chart
-    var platformLabels = ['Twitter', 'Facebook', 'TikTok', 'WhatsApp', 'Telegram', 'Reddit', 'Other'];
+    var platformLabels = ['Twitter', 'Facebook', 'TikTok', 'WhatsApp', 'Telegram', 'Reddit', 'Other', 'Unspecified'];
     if (data.misinformation && data.misinformation.platformBreakdown && data.misinformation.platformBreakdown.length > 0) {
       var pb = data.misinformation.platformBreakdown;
       platformLabels = pb.map(function(p){ return p.platform; });

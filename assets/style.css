@@ -203,6 +203,10 @@ nav.tabs button.active {
 }
 .chip.true { background: rgba(34,197,94,0.12); color: #146c2e; border-color: rgba(34,197,94,0.35); }
 .chip.false { background: rgba(239,68,68,0.10); color: #8a1c1c; border-color: rgba(239,68,68,0.30); }
+.chip.unverified { background: rgba(245,158,11,0.12); color: #8a5300; border-color: rgba(245,158,11,0.38); }
+.chip.risk-high { background: rgba(239,68,68,0.14); color: #8a1c1c; border-color: rgba(239,68,68,0.4); }
+.chip.risk-medium { background: rgba(245,158,11,0.14); color: #8a5300; border-color: rgba(245,158,11,0.42); }
+.chip.risk-low { background: rgba(34,197,94,0.12); color: #146c2e; border-color: rgba(34,197,94,0.35); }
 
 /* ===================== ASSESSMENT ITEMS ===================== */
 .assessment-item { padding: 12px 0; border-bottom: 1px solid var(--line); }

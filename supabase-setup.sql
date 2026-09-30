@@ -32,8 +32,11 @@ CREATE TABLE IF NOT EXISTS public.misinformation_events (
   claim TEXT NOT NULL,
   claim_hash TEXT NOT NULL,
   conjunction_result INTEGER NOT NULL DEFAULT 0,
-  misinformation_risk_score INTEGER NOT NULL DEFAULT 0, -- 0-100
-  platform TEXT NOT NULL, -- 'twitter', 'facebook', 'tiktok', 'whatsapp', 'telegram', 'reddit', 'other'
+  platform TEXT NOT NULL DEFAULT 'unspecified', -- 'twitter', 'facebook', 'tiktok', 'whatsapp', 'telegram', 'reddit', 'other', 'unspecified'
+  misinformation_risk_score INTEGER NOT NULL DEFAULT 0, -- 0-100, derived from proposition states
+  risk_category TEXT, -- 'likely-fabrication' | 'unsupported-claim' | 'possible-misinterpretation' | 'insufficient-evidence' | 'uncorroborated-official' | 'verified'
+  p_state TEXT, -- 'true' | 'unverified' | 'false'
+  q_state TEXT, -- 'true' | 'unverified' | 'false'
   shares INTEGER NOT NULL DEFAULT 0,
   impressions INTEGER NOT NULL DEFAULT 0,
   engagement_rate NUMERIC(5,2) NOT NULL DEFAULT 0.00,
@@ -76,6 +79,7 @@ CREATE INDEX IF NOT EXISTS idx_misinformation_events_claim_hash ON public.misinf
 CREATE INDEX IF NOT EXISTS idx_misinformation_events_platform ON public.misinformation_events(platform);
 CREATE INDEX IF NOT EXISTS idx_misinformation_events_detection_timestamp ON public.misinformation_events(detection_timestamp);
 CREATE INDEX IF NOT EXISTS idx_misinformation_events_risk_score ON public.misinformation_events(misinformation_risk_score);
+CREATE INDEX IF NOT EXISTS idx_misinformation_events_risk_category ON public.misinformation_events(risk_category);
 CREATE INDEX IF NOT EXISTS idx_misinformation_spread_event_id ON public.misinformation_spread(event_id);
 CREATE INDEX IF NOT EXISTS idx_platform_stats_platform ON public.platform_misinformation_stats(platform);
 
