@@ -13,7 +13,7 @@ VerifiedPulse is a **logical fact-checking system** that evaluates claims using 
 The user enters a text claim on the frontend (`index.html`). The claim is sent as a POST request to `/api/check-claim`. The backend evaluates the claim against two **fixed propositions** that are defined in the backend code (`lib/llm-providers.js`, `FIXED_PROPOSITIONS`):
 
 - **P**: Is the claim backed by an official statement, announcement, or memorandum?
-- **Q**: Is the information confirmed as accurate by a credible news outlet, fact-checking organization, or recognized expert institution? Mere repetition or coverage is not confirmation.
+- **Q**: Is the information reported or confirmed by a credible news outlet, fact-checking organization, or recognized expert institution?
 
 ### Step 2: Web Search for Corroborating Evidence
 

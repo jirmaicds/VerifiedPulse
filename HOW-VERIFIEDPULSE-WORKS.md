@@ -25,7 +25,7 @@ The two questions VerifiedPulse asks about **every single claim** are already de
 | | Question |
 |---|---|
 | **P** | Is this claim backed by an official statement, announcement, or memo? |
-| **Q** | Is this claim confirmed as accurate by a credible news outlet, fact-checker, or recognised expert institution? |
+| **Q** | Is this claim reported or confirmed by a credible news outlet, fact-checker, or recognised expert institution? |
 
 Both must be **yes** for the claim to be called verified. That's the entire rule.
 
