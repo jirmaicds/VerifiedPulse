@@ -260,8 +260,6 @@ nav.tabs button.active {
 .num { font-size: 2rem; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
 .lbl { font-size: 0.82rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
 .chart-title { font-weight: 700; color: var(--navy); margin-bottom: 10px; }
-.chart-wrap { position: relative; width: 100%; height: 260px; }
-.chart-wrap canvas { width: 100%; height: 100%; display: block; }
 .source-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .legend-group { background: #f8fafc; border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid var(--line); }
 .gov-agencies { font-size: 0.78rem; font-weight: 800; color: #22c55e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
@@ -273,7 +271,95 @@ nav.tabs button.active {
   .source-legend { grid-template-columns: 1fr; }
 }
 
+/* ===================== ENHANCED CHARTS ===================== */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 16px;
+}
+.chart-grid .card { margin-bottom: 0; }
+.chart-grid .card.full-width { grid-column: 1 / -1; }
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+.chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.chart-wrap.short { height: 260px; }
+.chart-wrap.tall  { height: 380px; }
+
+/* Chart caption for context */
+.chart-caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.5;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Fallback when JS is disabled */
+.chart-fallback {
+  display: none;
+  padding: 14px;
+  background: #fff8e6;
+  border: 1px dashed var(--warn);
+  border-radius: var(--radius-sm);
+  color: var(--navy);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Custom legend for accessibility */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 4px 10px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.chart-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 /* ===================== RESPONSIVE CHARTS ===================== */
+@media (max-width: 900px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-wrap { height: 300px; }
+  .chart-wrap.tall { height: 340px; }
+}
+@media (max-width: 480px) {
+  .chart-wrap { height: 260px; }
+  .chart-wrap.short { height: 220px; }
+  .chart-legend-item { font-size: 0.78rem; padding: 3px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-wrap canvas { transition: none !important; }
+}
+
 @media (max-width: 768px) {
   .hero { padding: 28px 16px 22px; }
   .hero h1 { font-size: 1.8rem; }
@@ -286,11 +372,9 @@ nav.tabs button.active {
   .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .result-header { flex-direction: column; align-items: flex-start; }
   .quiz-options { grid-template-columns: 1fr; }
-  .chart-wrap canvas { height: 260px; }
 }
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr; }
-  .chart-wrap canvas { height: 220px; }
   .num { font-size: 1.6rem; }
 }
 
@@ -416,5 +500,4 @@ nav.tabs button.active {
   .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .result-header { flex-direction: column; align-items: flex-start; }
   .quiz-options { grid-template-columns: 1fr; }
-  .chart-wrap canvas { height: 220px; }
 }

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerifiedPulse Logical Fact Checker</title>
     <link rel="stylesheet" href="assets/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="assets/charts.js" defer></script>
 </head>
 <body>
 <div id="toastContainer" class="toast-container"></div>
@@ -100,53 +102,78 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="chart-title">&#128200; Weekly Claim Volume & Verification Trend</div>
-        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <!-- &#128200; Weekly Claim Volume & Verification Trend -->
+    <div class="card full-width">
+        <h3><i class="ico">&#128200;</i> Weekly Claim Volume &amp; Verification Trend</h3>
+        <p class="section-desc">Claims processed per week vs. verified outcomes (last 8 weeks).</p>
+        <div class="chart-wrap tall">
+            <canvas id="chartTrend" aria-label="Weekly claim volume and verification trend"></canvas>
+        </div>
+        <div class="chart-legend" id="legendTrend"></div>
     </div>
 
-    <div class="card">
-        <div class="chart-title">&#127942; Most Used Trusted Sources</div>
-        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
-        <div class="source-legend">
-            <div class="legend-group">
-                <div class="gov-agencies">Government Agencies</div>
-                <div class="legend-chips">PHIVOLCS, USGS, WHO, DOH, COMELEC, DepEd, BSP, PSE, PAGASA</div>
-            </div>
-            <div class="legend-group">
-                <div class="international-news">International News</div>
-                <div class="legend-chips">Reuters, BBC, BBC News, AP, AFP</div>
-            </div>
-            <div class="legend-group">
-                <div class="scientific_technical">Scientific / Technical</div>
-                <div class="legend-chips">NASA, NASA.gov</div>
-            </div>
-            <div class="legend-group">
-                <div class="fact-checking">Fact-Checking Orgs</div>
-                <div class="legend-chips">FactCheck.org, Snopes</div>
+    <!-- Chart grid for smaller charts -->
+    <div class="chart-grid">
+        <!-- &#128187; Misinformation Risk Distribution -->
+        <div class="card">
+            <h3><i class="ico">&#128187;</i> Misinformation Risk Distribution</h3>
+            <div class="chart-wrap">
+                <canvas id="chartRisk" aria-label="Risk distribution donut chart"></canvas>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="chart-title">&#128187; Misinformation Risk Distribution</div>
-        <div class="chart-wrap"><canvas id="riskChart"></canvas></div>
-    </div>
+        <!-- &#127760; Misinformation by Platform -->
+        <div class="card">
+            <h3><i class="ico">&#127760;</i> Misinformation by Platform</h3>
+            <div class="chart-wrap">
+                <canvas id="chartPlatform" aria-label="Misinformation by platform"></canvas>
+            </div>
+        </div>
 
-    <div class="card">
-        <div class="chart-title">&#129302; Flagged Claims by Category</div>
-        <p class="section-desc">A failed conjunction is not automatically misinformation. Misinterpretations of real reporting are scored separately from claims with no supporting source at all.</p>
-        <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
-    </div>
+        <!-- &#128170; Misinformation Spread -->
+        <div class="card full-width">
+            <h3><i class="ico">&#128170;</i> Misinformation Spread (Shares &amp; Impressions)</h3>
+            <div class="chart-wrap">
+                <canvas id="chartSpread" aria-label="Misinformation spread metrics"></canvas>
+            </div>
+            <div class="chart-legend"></div>
+        </div>
 
-    <div class="card">
-        <div class="chart-title">&#127760; Misinformation by Platform</div>
-        <div class="chart-wrap"><canvas id="platformChart"></canvas></div>
-    </div>
+        <!-- &#127942; Most Used Trusted Sources (horizontal for long names) -->
+        <div class="card full-width">
+            <h3><i class="ico">&#127942;</i> Most Used Trusted Sources</h3>
+            <p class="section-desc">Horizontal layout ensures full source names remain readable.</p>
+            <div class="chart-wrap tall">
+                <canvas id="chartSources" aria-label="Most used trusted sources"></canvas>
+            </div>
+            <div class="source-legend">
+                <div class="legend-group">
+                    <div class="gov-agencies">Government Agencies</div>
+                    <div class="legend-chips">PHIVOLCS, USGS, WHO, DOH, COMELEC, DepEd, BSP, PSE, PAGASA</div>
+                </div>
+                <div class="legend-group">
+                    <div class="international-news">International News</div>
+                    <div class="legend-chips">Reuters, BBC, BBC News, AP, AFP</div>
+                </div>
+                <div class="legend-group">
+                    <div class="scientific_technical">Scientific / Technical</div>
+                    <div class="legend-chips">NASA, NASA.gov</div>
+                </div>
+                <div class="legend-group">
+                    <div class="fact-checking">Fact-Checking Orgs</div>
+                    <div class="legend-chips">FactCheck.org, Snopes</div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card">
-        <div class="chart-title">&#128170; Misinformation Spread (Shares & Impressions)</div>
-        <div class="chart-wrap"><canvas id="spreadChart"></canvas></div>
+        <!-- &#129302; Flagged Claims by Category -->
+        <div class="card full-width">
+            <h3><i class="ico">&#129302;</i> Flagged Claims by Category</h3>
+            <p class="section-desc">A failed conjunction is not automatically misinformation. Misinterpretations of real reporting are scored separately from claims with no supporting source at all.</p>
+            <div class="chart-wrap">
+                <canvas id="chartCategory" aria-label="Flagged claims by category"></canvas>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -189,7 +216,10 @@ function showTab(name){
     var cap = name.charAt(0).toUpperCase() + name.slice(1);
     document.getElementById('panel'+cap).classList.add('active');
     document.getElementById('tab'+cap).classList.add('active');
-    if(name==='metrics'){ loadMetrics(); }
+    if(name==='metrics'){
+        loadMetrics();
+        if(window.VerifiedPulseCharts) window.VerifiedPulseCharts.resize();
+    }
 }
 
 function showToast(message, type) {
@@ -432,176 +462,8 @@ function drawTruthTable(letters, highlightResult){
 }
 
 /* ===================== 2) VISUAL METRICS ===================== */
-function setupCanvas(canvas){
-    var dpr = window.devicePixelRatio || 1;
-    var rect = canvas.getBoundingClientRect();
-    var w = Math.max(300, rect.width || canvas.clientWidth || 600);
-    var containerH = canvas.parentElement ? canvas.parentElement.clientHeight : 0;
-    var h = Math.max(180, Math.min(320, containerH || rect.height || 260));
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    var ctx = canvas.getContext('2d');
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    return { ctx: ctx, w: w, h: h };
-}
-
-function fitChartHeight(canvas, minH, maxH){
-    var containerH = canvas.parentElement ? canvas.parentElement.clientHeight : 0;
-    var rect = canvas.getBoundingClientRect();
-    var h = Math.max(minH, Math.min(maxH, containerH || rect.height || minH));
-    return h;
-}
-
-function drawTrend(canvas, labels, verifiedData, totalData){
-    var s = setupCanvas(canvas);
-    var ctx = s.ctx, w = s.w, h = s.h;
-    ctx.clearRect(0,0,w,h);
-    if(!labels || labels.length === 0){
-        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('No weekly data available yet', w/2, h/2);
-        ctx.font = '11px Segoe UI, sans-serif';
-        ctx.fillText('Run a few fact-checks to populate the trend chart', w/2, h/2 + 22);
-        return;
-    }
-    var padL = 40, padR = 16, padT = 20, padB = 32;
-    var plotW = w - padL - padR, plotH = h - padT - padB;
-    var maxV = Math.max.apply(null, totalData) * 1.2 || 600;
-    function x(i){ return padL + (plotW * i/(labels.length-1)); }
-    function y(v){ return padT + plotH * (1 - v/maxV); }
-    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
-    ctx.font = '11px Segoe UI, sans-serif'; ctx.textAlign = 'center';
-    for(var g=0; g<=4; g++){
-        var gv = maxV*g/4;
-        var gy = y(gv);
-        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
-        ctx.textAlign = 'right'; ctx.fillText(Math.round(gv), padL-8, gy+4);
-    }
-    ctx.textAlign = 'center';
-    labels.forEach(function(lb,i){ 
-        ctx.save();
-        ctx.translate(x(i), h-14);
-        ctx.rotate(-Math.PI/6);
-        ctx.fillText(lb, 0, 0);
-        ctx.restore();
-    });
-    function plot(data, color){
-        ctx.beginPath();
-        data.forEach(function(v,i){ var px=x(i), py=y(v); if(i===0){ctx.moveTo(px,py);} else {ctx.lineTo(px,py);} });
-        ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
-        data.forEach(function(v,i){ ctx.beginPath(); ctx.arc(x(i), y(v), 4, 0, 7); ctx.fillStyle=color; ctx.fill(); });
-    }
-    plot(totalData, '#0057b8');
-    plot(verifiedData, '#22c55e');
-    ctx.fillStyle = '#0057b8'; ctx.font = '12px Segoe UI'; ctx.textAlign='left';
-    ctx.fillText('● Total claims', padL+4, padT+8);
-    ctx.fillStyle = '#22c55e';
-    ctx.fillText('● Verified', padL+90, padT+8);
-}
-
-function drawBars(canvas, labels, values, colors){
-    var s = setupCanvas(canvas);
-    var ctx = s.ctx, w = s.w, h = s.h;
-    ctx.clearRect(0,0,w,h);
-    if(!labels || labels.length === 0){
-        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('No source data available yet', w/2, h/2);
-        ctx.font = '11px Segoe UI, sans-serif';
-        ctx.fillText('Run a few fact-checks to populate this chart', w/2, h/2 + 22);
-        return;
-    }
-    var padL = 40, padR = 16, padT = 20, padB = 36;
-    var plotW = w - padL - padR, plotH = h - padT - padB;
-    var maxV = Math.max.apply(null, values) * 1.15 || 100;
-    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
-    ctx.font = '11px Segoe UI, sans-serif';
-    for(var g=0; g<=4; g++){
-        var gv = maxV*g/4;
-        var gy = padT + plotH*(1 - gv/maxV);
-        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
-        ctx.textAlign='right'; ctx.fillText(Math.round(gv), padL-8, gy+4);
-    }
-    var bw = plotW / labels.length * 0.55;
-    var step = plotW / labels.length;
-    labels.forEach(function(lb,i){
-        var v = values[i];
-        var bh = plotH * (v/maxV);
-        var bx = padL + step*i + (step-bw)/2;
-        var by = padT + plotH - bh;
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.fillStyle = '#0f1a41'; ctx.font = 'bold 12px Segoe UI'; ctx.textAlign='center';
-        ctx.fillText(v, bx+bw/2, by-6);
-        ctx.fillStyle = '#5b6478'; ctx.font = '11px Segoe UI';
-        if (String(lb).length > 10) {
-            ctx.save();
-            ctx.translate(bx+bw/2, h-8);
-            ctx.rotate(-Math.PI/6);
-            ctx.textAlign = 'right';
-            ctx.fillText(lb, 0, 0);
-            ctx.restore();
-        } else {
-            ctx.fillText(lb, bx+bw/2, h-8);
-        }
-    });
-}
-
-function drawDualBars(canvas, labels, shares, impressions){
-    var s = setupCanvas(canvas);
-    var ctx = s.ctx, w = s.w, h = s.h;
-    ctx.clearRect(0,0,w,h);
-    if(!labels || labels.length === 0){
-        ctx.fillStyle = '#5b6478'; ctx.font = '13px Segoe UI, sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText('No spread data available yet', w/2, h/2);
-        ctx.font = '11px Segoe UI, sans-serif';
-        ctx.fillText('Run fact-checks with misinformation tracking to populate', w/2, h/2 + 22);
-        return;
-    }
-    var padL = 40, padR = 16, padT = 20, padB = 36;
-    var plotW = w - padL - padR, plotH = h - padT - padB;
-    var maxV = Math.max.apply(null, shares.concat(impressions)) * 1.15 || 100;
-    ctx.strokeStyle = '#e3e8f0'; ctx.fillStyle = '#5b6478';
-    ctx.font = '11px Segoe UI, sans-serif';
-    for(var g=0; g<=4; g++){
-        var gv = maxV*g/4;
-        var gy = padT + plotH*(1 - gv/maxV);
-        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w-padR, gy); ctx.stroke();
-        ctx.textAlign='right'; ctx.fillText(Math.round(gv), padL-8, gy+4);
-    }
-    var bw = plotW / labels.length * 0.25;
-    var step = plotW / labels.length;
-    labels.forEach(function(lb,i){
-        var vShares = shares[i];
-        var vImpressions = impressions[i];
-        var bhShares = plotH * (vShares/maxV);
-        var bhImpressions = plotH * (vImpressions/maxV);
-        var bxShares = padL + step*i + (step-bw*2)/2;
-        var bxImpressions = bxShares + bw + 2;
-        var byShares = padT + plotH - bhShares;
-        var byImpressions = padT + plotH - bhImpressions;
-        ctx.fillStyle = '#0057b8';
-        ctx.fillRect(bxShares, byShares, bw, bhShares);
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(bxImpressions, byImpressions, bw, bhImpressions);
-        ctx.fillStyle = '#0f1a41'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign='center';
-        if (vShares > 0) ctx.fillText(vShares, bxShares+bw/2, byShares-4);
-        if (vImpressions > 0) ctx.fillText(vImpressions, bxImpressions+bw/2, byImpressions-4);
-        ctx.fillStyle = '#5b6478'; ctx.font = '11px Segoe UI';
-        ctx.fillText(lb, bxShares+bw/2 + bw/2 + 1, h-8);
-    });
-    // Legend
-    ctx.fillStyle = '#0057b8'; ctx.font = '12px Segoe UI'; ctx.textAlign='left';
-    ctx.fillText('● Shares', padL+4, padT+8);
-    ctx.fillStyle = '#22c55e';
-    ctx.fillText('● Impressions', padL+70, padT+8);
-}
-
-var _resizeTimer = null;
-window.addEventListener('resize', function(){
-    if(_resizeTimer) clearTimeout(_resizeTimer);
-    _resizeTimer = setTimeout(function(){
-        if(window._lastMetrics){ updateMetricsUI(window._lastMetrics); }
-    }, 150);
-});
+/* Charts are rendered by assets/charts.js (Chart.js). This section only
+   updates the stat tiles and pushes live API data into the charts. */
 
 async function loadMetrics(){
     try {
@@ -647,81 +509,8 @@ function updateMetricsUI(data){
       document.getElementById('statMisinfoAvgRisk').textContent = (m.avgRiskScore || 0).toFixed(1);
     }
 
-    if(data.weekly && data.weekly.length > 0){
-        var labels = data.weekly.map(function(w){ return w.date; });
-        var totalData = data.weekly.map(function(w){ return w.count; });
-        var verifiedData = data.weekly.map(function(w){ return w.verified || 0; });
-        drawTrend(document.getElementById('trendChart'), labels, verifiedData, totalData);
-    } else {
-        drawTrend(document.getElementById('trendChart'), [], [], []);
-    }
-
-    if(data.trustedSources && data.trustedSources.length > 0){
-        var modeLabels = data.trustedSources.map(function(m){ return m.category; });
-        var modeValues = data.trustedSources.map(function(m){ return m.count; });
-        var modeColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf'];
-        drawBars(document.getElementById('barChart'), modeLabels, modeValues, modeColors);
-    } else {
-        drawBars(document.getElementById('barChart'), [], [], []);
-    }
-
-    // Misinformation Risk Distribution chart
-    if (data.misinformation && data.misinformation.riskDistribution) {
-      var rd = data.misinformation.riskDistribution;
-      drawBars(document.getElementById('riskChart'), ['Low', 'Medium', 'High'], [rd.low, rd.medium, rd.high], ['#22c55e', '#f59e0b', '#ef4444']);
-    } else {
-      drawBars(document.getElementById('riskChart'), [], [], []);
-    }
-
-    // Flagged claims by category chart
-    if (data.misinformation && data.misinformation.categories && data.misinformation.categories.length > 0) {
-      var CATEGORY_LABELS = {
-        'likely-fabrication': 'Likely fabrication',
-        'unsupported-claim': 'Unsupported claim',
-        'possible-misinterpretation': 'Misinterpretation',
-        'insufficient-evidence': 'Insufficient evidence',
-        'uncorroborated-official': 'Uncorroborated official',
-        'verified': 'Verified'
-      };
-      var CATEGORY_COLORS = {
-        'likely-fabrication': '#ef4444',
-        'unsupported-claim': '#f97316',
-        'possible-misinterpretation': '#a855f7',
-        'insufficient-evidence': '#f59e0b',
-        'uncorroborated-official': '#2dd4bf',
-        'verified': '#22c55e'
-      };
-      var catEntries = data.misinformation.categories;
-      var catLabels = catEntries.map(function(c){ return CATEGORY_LABELS[c.category] || c.category; });
-      var catValues = catEntries.map(function(c){ return c.count; });
-      var catColors = catEntries.map(function(c){ return CATEGORY_COLORS[c.category] || '#0057b8'; });
-      drawBars(document.getElementById('categoryChart'), catLabels, catValues, catColors);
-    } else {
-      drawBars(document.getElementById('categoryChart'), ['Likely fabrication', 'Unsupported claim', 'Misinterpretation', 'Insufficient evidence'], [0, 0, 0, 0], ['#ef4444', '#f97316', '#a855f7', '#f59e0b']);
-    }
-
-    // Misinformation by Platform chart
-    var platformLabels = ['Twitter', 'Facebook', 'TikTok', 'WhatsApp', 'Telegram', 'Reddit', 'Other', 'Unspecified'];
-    if (data.misinformation && data.misinformation.platformBreakdown && data.misinformation.platformBreakdown.length > 0) {
-      var pb = data.misinformation.platformBreakdown;
-      platformLabels = pb.map(function(p){ return p.platform; });
-      var platformValues = pb.map(function(p){ return p.events; });
-      var platformColors = ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf','#a855f7','#ec4899'];
-      drawBars(document.getElementById('platformChart'), platformLabels, platformValues, platformColors);
-    } else {
-      drawBars(document.getElementById('platformChart'), platformLabels, platformLabels.map(function(){ return 0; }), ['#0057b8','#22c55e','#f59e0b','#ef4444','#2dd4bf','#a855f7','#ec4899']);
-    }
-
-    // Misinformation Spread chart (shares vs impressions)
-    if (data.misinformation && data.misinformation.platformBreakdown && data.misinformation.platformBreakdown.length > 0) {
-      var pb = data.misinformation.platformBreakdown;
-      var spreadLabels = pb.map(function(p){ return p.platform; });
-      var spreadShares = pb.map(function(p){ return p.shares; });
-      var spreadImpressions = pb.map(function(p){ return p.impressions; });
-      drawDualBars(document.getElementById('spreadChart'), spreadLabels, spreadShares, spreadImpressions);
-    } else {
-      drawDualBars(document.getElementById('spreadChart'), platformLabels, platformLabels.map(function(){ return 0; }), platformLabels.map(function(){ return 0; }));
-    }
+    // Push live metrics into the Chart.js renderer
+    if (window.VerifiedPulseCharts) window.VerifiedPulseCharts.update(data);
 }
 
 function renderKnowledgeBase(){
