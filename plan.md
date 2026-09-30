@@ -21,7 +21,7 @@
 3. Backend sends claim + evidence to **LLM**
 4. LLM evaluates the claim against two **fixed propositions** (P and Q) with TRUE/FALSE values and explanations:
    - **P**: The claim is backed by an official statement, announcement, or memorandum.
-   - **Q**: The information is reported or confirmed by a credible news outlet, fact-checking organization, or recognized expert institution.
+   - **Q**: The information is confirmed as accurate by a credible news outlet, fact-checking organization, or recognized expert institution.
 5. Backend applies **conjunction logic** (ALL must be true = VERIFIED)
 6. Result stored in database for metrics
 7. Frontend displays: truth table, chips, assessment details
@@ -36,7 +36,7 @@ are **no longer user-configurable** from the frontend.
 | Letter | Proposition |
 |--------|-------------|
 | **P** | The claim is backed by an official statement, announcement, or memorandum. |
-| **Q** | The information is reported or confirmed by a credible news outlet, fact-checking organization, or recognized expert institution. |
+| **Q** | The information is confirmed as accurate by a credible news outlet, fact-checking organization, or recognized expert institution. |
 
 A claim is **Verified** only when **both P and Q evaluate to True** (conjunction
 logic: `p ∧ q ≡ T`). If either is False, the claim is flagged as

@@ -124,7 +124,7 @@ nav.tabs button.active {
 .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
 /* ===================== INPUT MODE ===================== */
-.input-mode { margin-bottom: 16px; }
+.input-mode { margin-bottom: 16px; position: relative; }
 .input-mode:last-child { margin-bottom: 0; }
 .input-mode textarea,
 .input-mode input[type="text"] {
@@ -147,6 +147,17 @@ nav.tabs button.active {
 }
 .input-mode textarea::placeholder,
 .input-mode input[type="text"]::placeholder { color: #aab3c7; }
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 600;
+}
+.char-count.warning { color: var(--warn); }
+.char-count.error { color: var(--false); }
 
 /* ===================== FIXED PROPOSITIONS DISPLAY ===================== */
 .propositions-fixed {

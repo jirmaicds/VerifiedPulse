@@ -25,7 +25,7 @@
         <p><strong>User Input:</strong> Claims submitted by you through the frontend interface are sent to our backend server for processing.</p>
         <p class="mt-12"><strong>Server Logs:</strong> Standard server logs may record IP addresses, timestamps, and request metadata for security and debugging purposes.</p>
         <p class="mt-12"><strong>LLM API Requests:</strong> Claims and proposition data are sent to a configurable LLM provider (e.g., OpenAI, Anthropic) for structured analysis. No personal identifiers are attached to these requests unless you voluntarily include them in your input.</p>
-        <p class="mt-12"><strong>Stored Records:</strong> When you run a fact check, the claim text, any propositions you provide, the computed verification result, and the retrieved search evidence are saved in our database (local SQLite by default, or Supabase if configured). The service has no user registration or login, so these records are not linked to any account. Because claim text is stored as-submitted, it may contain personal information if you choose to include it.</p>
+        <p class="mt-12"><strong>Stored Records:</strong> When you run a fact check, the claim text, the fixed propositions evaluated, the computed verification result, and the retrieved search evidence are saved in our database (local SQLite by default, or Supabase if configured). The service has no user registration or login, so these records are not linked to any account. Because claim text is stored as-submitted, it may contain personal information if you choose to include it.</p>
     </div>
 
     <div class="card">

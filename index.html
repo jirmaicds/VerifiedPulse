@@ -28,7 +28,8 @@
         <h3><span class="ico">&#128269;</span> Fact Checker Text Claim (Conjunction Logic)</h3>
 
         <div class="input-mode">
-            <textarea id="claimInput" rows="3" placeholder="Type or paste the claim you want to fact-check..."></textarea>
+            <textarea id="claimInput" rows="3" maxlength="2000" placeholder="Type or paste the claim you want to fact-check..."></textarea>
+            <div class="char-count"><span id="charCount">0</span> / 2000 characters</div>
         </div>
 
         <div class="propositions-fixed">
@@ -36,7 +37,7 @@
                 <strong>P:</strong> The claim is backed by an official statement, announcement, or memorandum.
             </div>
             <div class="prop-fixed-row">
-                <strong>Q:</strong> The information is reported or confirmed by a credible news outlet, fact-checking organization, or recognized expert institution.
+                <strong>Q:</strong> The information is confirmed by a credible news outlet, fact-checking organization, or recognized expert institution.
             </div>
         </div>
 
@@ -264,6 +265,7 @@ var VERIFIED_CLAIMS = [
 async function evaluateClaim(){
     var claim = document.getElementById('claimInput').value.trim();
     if(!claim) return alert('Please enter a claim to verify');
+    if (claim.length > 2000) return alert('Claim exceeds maximum length of 2000 characters');
 
     var btn = document.getElementById('verifyBtn');
     setLoading(btn, true);
@@ -277,8 +279,7 @@ async function evaluateClaim(){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 mode: 'text',
-                claim: claim,
-                propositions: null
+                claim: claim
             })
         });
 
@@ -525,6 +526,22 @@ function renderKnowledgeBase(){
 window.addEventListener('load', function(){
     renderKnowledgeBase();
     loadMetrics();
+    
+    // Character counter for claim input
+    var claimInput = document.getElementById('claimInput');
+    var charCount = document.getElementById('charCount');
+    if (claimInput && charCount) {
+        claimInput.addEventListener('input', function() {
+            var len = claimInput.value.length;
+            charCount.textContent = len;
+            charCount.parentElement.classList.remove('warning', 'error');
+            if (len > 1800) {
+                charCount.parentElement.classList.add('error');
+            } else if (len > 1500) {
+                charCount.parentElement.classList.add('warning');
+            }
+        });
+    }
 });
 
 /* ===================== 3) QUIZ GAME ===================== */
