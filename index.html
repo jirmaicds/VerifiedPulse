@@ -53,6 +53,22 @@
         </div>
     </div>
 
+    <div id="loadingScreen" class="loading-card hidden">
+        <div class="loading-section">
+            <div class="spinner"></div>
+            <div class="status-text" id="loadingStatusText">Analyzing sources...</div>
+            <div class="sub-text">This usually takes 10-15 seconds</div>
+        </div>
+        <div class="entertainment-section">
+            <div class="entertainment-header">🧠 While you wait, test your knowledge!</div>
+            <div class="content-box" id="loadingContentBox">
+                <div class="fact-icon">🔄</div>
+                <div class="fact-text">Loading...</div>
+            </div>
+            <button class="btn btn-next" id="loadingNextBtn" onclick="loadRandomContent()">Next Fact &rarr;</button>
+        </div>
+    </div>
+
     <div id="resultBox" class="result-box">
         <div class="result-header">
             <span class="result-status" id="resultStatus"></span>
@@ -70,7 +86,7 @@
             <table class="truth" id="truthTable"></table>
         </div>
         <div class="logic-note">
-            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ∧ q)</code> with two fixed propositions: <strong>P</strong> (official statement) and <strong>Q</strong> (credible source). For a <strong>Verified (True)</strong> status, both propositions must be true. If either is False, the conjunction evaluates to False and the claim is flagged as <strong>Unverified / High Misinformation Risk</strong>.
+            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ∧ q)</code> with two fixed propositions: <strong>P</strong> (official statement) and <strong>Q</strong> (credible source). For a <strong>Verified (True)</strong> status, both propositions must be true. If either is False,             the conjunction evaluates to False and the claim is flagged as <strong>Unverified / Misinformation</strong>.
         </div>
     </div>
     <div class="card">
@@ -273,6 +289,13 @@ async function evaluateClaim(){
     var box = document.getElementById('resultBox');
     box.style.display = 'none';
 
+    var loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        loadingScreen.classList.remove('hidden');
+        loadRandomContent();
+        startLoadingTextRotation();
+    }
+
     try {
         var resp = await fetch('/api/check-claim', {
             method: 'POST',
@@ -327,6 +350,11 @@ async function evaluateClaim(){
         alert('Error: ' + e.message);
     } finally {
         setLoading(btn, false);
+        var loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('hidden');
+            stopLoadingTextRotation();
+        }
     }
 }
 
@@ -340,6 +368,12 @@ function displayResults(data){
     var propositions = data.propositions || [];
     var conjunctionResult = data.conjunction_result;
     var searchEvidence = data.search_evidence;
+
+    var loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        loadingScreen.classList.add('hidden');
+        stopLoadingTextRotation();
+    }
 
     window._lastPropositions = propositions;
 
@@ -380,17 +414,7 @@ function displayResults(data){
             ' &nbsp;<span class="chip '+chipClass+'">'+label+'</span>'+
             '<div class="exp">Assessment: '+(p.explanation||'')+'</div></div>';
     }).join('');
-    var riskHtml = '';
-    if (data.risk && !data.risk.conjunctionResult) {
-        riskHtml = '<div class="section-label">Misinformation Risk Assessment</div>' +
-            '<div class="assessment-item"><div class="exp">Risk score <strong>'+data.risk.riskScore+'/100</strong> ('+data.risk.severity+') &mdash; '+data.risk.categoryLabel+'. ' +
-            'Propositions resolved: p = '+data.risk.pValue+', q = '+data.risk.qValue+'. ' +
-            (data.risk.isMisinformationCandidate
-                ? 'A claim with no supporting source is consistent with fabrication or invention.'
-                : 'This claim is not necessarily misinformation. The evidence is silent or the claim distorts real reporting; treat the risk as provisional.') +
-            '</div></div>';
-    }
-    document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + riskHtml + sourcesHtml;
+    document.getElementById('assessmentDetails').innerHTML = '<div class="section-label">Per-Proposition Assessment</div>' + details + sourcesHtml;
 
     var box = document.getElementById('resultBox');
     var letters = propositions.map(function(x){ return x.letter; }).join(' ∧ ');
@@ -404,7 +428,7 @@ function displayResults(data){
         var refuted = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'false'; }).map(function(x){ return x.letter; });
         var silent = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'unverified'; }).map(function(x){ return x.letter; });
         var boxClass = 'result-box unverified';
-        var statusText = '&#9888; Status: Unverified / Misinformation Risk Assessed';
+        var statusText = '&#9888; Status: Unverified / Misinformation';
         var messageText;
 
         if (refuted.length > 0) {
@@ -417,12 +441,8 @@ function displayResults(data){
             messageText = 'No proposition resolved as verified and the other was refuted or unsupported. The claim has no supporting source, which is consistent with fabrication. It should NOT be shared without verification.';
         } else {
             boxClass = 'result-box unverified';
-            statusText = '&#9888; Status: Unverified / Insufficient Evidence';
+            statusText = '&#9888; Status: Unverified / Misinformation';
             messageText = 'Proposition(s) ['+silent.join(', ')+'] are unverified: the evidence is silent or does not address the claim, rather than contradicting it. This is not evidence of misinformation. The claim may be true, unproven, or a misinterpretation, and needs further checking before being trusted or dismissed.';
-        }
-
-        if (risk) {
-            statusText += ' (risk ' + risk.riskScore + '/100)';
         }
 
         box.className = boxClass;
@@ -460,6 +480,136 @@ function drawTruthTable(letters, highlightResult){
         html += '</tr>';
     }
     table.innerHTML = html;
+}
+
+/* ===================== LOADING SCREEN ENTERTAINMENT ===================== */
+var contentPool = [
+    {
+        type: 'fact',
+        icon: '🍌',
+        text: 'Bananas are berries, but strawberries are not! Botanically speaking, a berry has seeds on the inside.'
+    },
+    {
+        type: 'quiz',
+        question: 'Media Literacy: "Deepfakes" only apply to manipulated video, not audio.',
+        answer: false,
+        explanation: 'False! Deepfake technology is frequently used to clone voices for audio scams and fake news.'
+    },
+    {
+        type: 'fact',
+        icon: '🐙',
+        text: 'Octopuses have three hearts, nine brains, and blue blood. Two hearts pump blood to the gills, while the third pumps it to the rest of the body.'
+    },
+    {
+        type: 'quiz',
+        question: 'If a news headline makes you feel extremely angry or emotional, it\'s best to pause before sharing it.',
+        answer: true,
+        explanation: 'True! Misinformation is often designed to trigger strong emotions (like outrage) to bypass our critical thinking and encourage rapid sharing.'
+    },
+    {
+        type: 'fact',
+        icon: '🍯',
+        text: 'Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!'
+    },
+    {
+        type: 'quiz',
+        question: 'Sponsored content and native advertising are the exact same thing as independent journalism.',
+        answer: false,
+        explanation: 'False! Sponsored content is paid for by advertisers to promote a product or message, whereas independent journalism is funded to report facts objectively.'
+    },
+    {
+        type: 'fact',
+        icon: '🌍',
+        text: 'The Great Wall of China is NOT visible from space with the naked eye. It\'s wide, but not nearly as long or contrasting as people think!'
+    },
+    {
+        type: 'quiz',
+        question: 'Checking the "About Us" section of a website is a good way to verify its credibility and bias.',
+        answer: true,
+        explanation: 'True! Transparency about funding, mission, and editorial standards is a hallmark of a trustworthy news source.'
+    }
+];
+
+var _loadingLastIndex = -1;
+var _loadingTextTimer = null;
+
+function loadRandomContent(){
+    var contentBox = document.getElementById('loadingContentBox');
+    var nextBtn = document.getElementById('loadingNextBtn');
+    if (!contentBox) return;
+
+    var randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * contentPool.length);
+    } while (randomIndex === _loadingLastIndex && contentPool.length > 1);
+
+    _loadingLastIndex = randomIndex;
+    var data = contentPool[randomIndex];
+
+    nextBtn.classList.add('hidden');
+
+    if (data.type === 'fact') {
+        contentBox.innerHTML =
+            '<div class="fact-icon">' + data.icon + '</div>' +
+            '<div class="fact-text">' + data.text + '</div>';
+        nextBtn.classList.remove('hidden');
+    } else if (data.type === 'quiz') {
+        contentBox.innerHTML =
+            '<div class="quiz-question">' + data.question + '</div>' +
+            '<div class="quiz-buttons">' +
+            '<button class="btn btn-true" onclick="handleQuizAnswer(true, ' + JSON.stringify(data.explanation) + ')">True</button>' +
+            '<button class="btn btn-false" onclick="handleQuizAnswer(false, ' + JSON.stringify(data.explanation) + ')">False</button>' +
+            '</div>' +
+            '<div id="loadingFeedback"></div>';
+    }
+}
+
+function handleQuizAnswer(userAnswer, explanation){
+    var contentBox = document.getElementById('loadingContentBox');
+    var currentData = contentPool[_loadingLastIndex];
+    if (!currentData || currentData.type !== 'quiz') return;
+
+    var isCorrect = userAnswer === currentData.answer;
+    var buttons = contentBox.querySelectorAll('.quiz-buttons .btn');
+    buttons.forEach(function(btn){ btn.disabled = true; });
+
+    var feedbackArea = document.getElementById('loadingFeedback');
+    if (feedbackArea) {
+        feedbackArea.innerHTML =
+            '<div class="feedback ' + (isCorrect ? 'correct' : 'incorrect') + '">' +
+            (isCorrect ? '✅ Correct!' : '❌ Incorrect.') + ' ' + explanation +
+            '</div>';
+    }
+
+    var nextBtn = document.getElementById('loadingNextBtn');
+    if (nextBtn) nextBtn.classList.remove('hidden');
+}
+
+var _loadingTexts = [
+    'Analyzing sources...',
+    'Cross-referencing databases...',
+    'Checking historical context...',
+    'Evaluating evidence quality...'
+];
+var _loadingTextIdx = 0;
+
+function startLoadingTextRotation(){
+    _loadingTextIdx = 0;
+    var statusText = document.getElementById('loadingStatusText');
+    if (statusText) statusText.textContent = _loadingTexts[0];
+
+    _loadingTextTimer = setInterval(function(){
+        _loadingTextIdx = (_loadingTextIdx + 1) % _loadingTexts.length;
+        var statusText = document.getElementById('loadingStatusText');
+        if (statusText) statusText.textContent = _loadingTexts[_loadingTextIdx];
+    }, 3000);
+}
+
+function stopLoadingTextRotation(){
+    if (_loadingTextTimer) {
+        clearInterval(_loadingTextTimer);
+        _loadingTextTimer = null;
+    }
 }
 
 /* ===================== 2) VISUAL METRICS ===================== */
