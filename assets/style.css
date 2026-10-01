@@ -500,6 +500,13 @@ nav.tabs button.active {
 
 .btn-false:hover { background: #dc2626; }
 
+.quiz-buttons .btn.correct-answer {
+  outline: 3px solid #111827;
+  outline-offset: 2px;
+}
+.quiz-buttons .btn:disabled { opacity: .55; cursor: default; }
+.quiz-buttons .btn.correct-answer:disabled { opacity: 1; }
+
 .feedback {
   margin-top: 15px;
   font-size: 0.95rem;

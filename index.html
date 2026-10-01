@@ -86,7 +86,7 @@
             <table class="truth" id="truthTable"></table>
         </div>
         <div class="logic-note">
-            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ∧ q)</code> with two fixed propositions: <strong>P</strong> (official statement) and <strong>Q</strong> (credible source). For a <strong>Verified (True)</strong> status, both propositions must be true. If either is False,             the conjunction evaluates to False and the claim is flagged as <strong>Unverified / Misinformation</strong>.
+            <strong>How it works:</strong> The system uses <code>Conjunction Logic (p ∧ q)</code> with two fixed propositions: <strong>P</strong> (official statement) and <strong>Q</strong> (credible source). For a <strong>Verified (True)</strong> status, both propositions must be true. If either is False,             the conjunction evaluates to False and the claim is flagged as <strong>Unverified</strong>.
         </div>
     </div>
     <div class="card">
@@ -428,7 +428,7 @@ function displayResults(data){
         var refuted = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'false'; }).map(function(x){ return x.letter; });
         var silent = propositions.filter(function(x){ return (x.state || (x.value ? 'true' : 'false')) === 'unverified'; }).map(function(x){ return x.letter; });
         var boxClass = 'result-box unverified';
-        var statusText = '&#9888; Status: Unverified / Misinformation';
+        var statusText = '&#9888; Status: Unverified';
         var messageText;
 
         if (refuted.length > 0) {
@@ -441,7 +441,7 @@ function displayResults(data){
             messageText = 'No proposition resolved as verified and the other was refuted or unsupported. The claim has no supporting source, which is consistent with fabrication. It should NOT be shared without verification.';
         } else {
             boxClass = 'result-box unverified';
-            statusText = '&#9888; Status: Unverified / Misinformation';
+            statusText = '&#9888; Status: Unverified';
             messageText = 'Proposition(s) ['+silent.join(', ')+'] are unverified: the evidence is silent or does not address the claim, rather than contradicting it. This is not evidence of misinformation. The claim may be true, unproven, or a misinterpretation, and needs further checking before being trusted or dismissed.';
         }
 
@@ -546,38 +546,50 @@ function loadRandomContent(){
     _loadingLastIndex = randomIndex;
     var data = contentPool[randomIndex];
 
-    nextBtn.classList.add('hidden');
+    if (nextBtn) nextBtn.classList.add('hidden');
 
     if (data.type === 'fact') {
         contentBox.innerHTML =
             '<div class="fact-icon">' + data.icon + '</div>' +
             '<div class="fact-text">' + data.text + '</div>';
-        nextBtn.classList.remove('hidden');
+        if (nextBtn) nextBtn.classList.remove('hidden');
     } else if (data.type === 'quiz') {
         contentBox.innerHTML =
             '<div class="quiz-question">' + data.question + '</div>' +
             '<div class="quiz-buttons">' +
-            '<button class="btn btn-true" onclick="handleQuizAnswer(true, ' + JSON.stringify(data.explanation) + ')">True</button>' +
-            '<button class="btn btn-false" onclick="handleQuizAnswer(false, ' + JSON.stringify(data.explanation) + ')">False</button>' +
+            '<button class="btn btn-true" data-answer="true">True</button>' +
+            '<button class="btn btn-false" data-answer="false">False</button>' +
             '</div>' +
             '<div id="loadingFeedback"></div>';
+
+        Array.prototype.forEach.call(contentBox.querySelectorAll('.quiz-buttons .btn'), function(btn){
+            btn.addEventListener('click', function(){
+                handleQuizAnswer(btn.getAttribute('data-answer') === 'true');
+            });
+        });
     }
 }
 
-function handleQuizAnswer(userAnswer, explanation){
+function handleQuizAnswer(userAnswer){
     var contentBox = document.getElementById('loadingContentBox');
     var currentData = contentPool[_loadingLastIndex];
-    if (!currentData || currentData.type !== 'quiz') return;
-
-    var isCorrect = userAnswer === currentData.answer;
-    var buttons = contentBox.querySelectorAll('.quiz-buttons .btn');
-    buttons.forEach(function(btn){ btn.disabled = true; });
+    if (!contentBox || !currentData || currentData.type !== 'quiz') return;
 
     var feedbackArea = document.getElementById('loadingFeedback');
+    if (feedbackArea && feedbackArea.innerHTML.trim()) return;
+
+    var isCorrect = userAnswer === currentData.answer;
+    Array.prototype.forEach.call(contentBox.querySelectorAll('.quiz-buttons .btn'), function(btn){
+        btn.disabled = true;
+        if ((btn.getAttribute('data-answer') === 'true') === currentData.answer) {
+            btn.classList.add('correct-answer');
+        }
+    });
+
     if (feedbackArea) {
         feedbackArea.innerHTML =
             '<div class="feedback ' + (isCorrect ? 'correct' : 'incorrect') + '">' +
-            (isCorrect ? '✅ Correct!' : '❌ Incorrect.') + ' ' + explanation +
+            (isCorrect ? '✅ Correct!' : '❌ Incorrect.') + ' ' + currentData.explanation +
             '</div>';
     }
 
