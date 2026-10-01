@@ -56,6 +56,13 @@
     'verified': '#22c55e'
   };
 
+  var SOURCE_COLORS = {
+    'Government Agencies': '#22c55e',
+    'International News': '#0057b8',
+    'Scientific/Technical': '#f59e0b',
+    'Fact-Checking Orgs': '#ef4444'
+  };
+
   var RISK_LABELS = ['High Risk', 'Medium Risk', 'Low Risk'];
   var RISK_COLORS = [COLORS.false, COLORS.warn, COLORS.true];
 
@@ -309,7 +316,7 @@
       setData(charts.sources, ts.map(function (s) { return s.category; }),
         [{ label: 'Citations', data: ts.map(function (s) { return s.count || 0; }) }]);
       charts.sources.data.datasets[0].backgroundColor = ts.map(function (s) {
-        return COLORS.blue;
+        return SOURCE_COLORS[s.category] || COLORS.blue;
       });
     }
 
