@@ -192,7 +192,9 @@ nav.tabs button.active {
 }
 .result-box.visible { display: block; }
 .result-box.verified { border-left-color: var(--true); background: linear-gradient(180deg, rgba(34,197,94,0.06), #fff 40%); }
-.result-box.unverified { border-left-color: var(--false); background: linear-gradient(180deg, rgba(239,68,68,0.06), #fff 40%); }
+.result-box.refuted { border-left-color: var(--false); background: linear-gradient(180deg, rgba(239,68,68,0.06), #fff 40%); }
+.result-box.unsupported { border-left-color: var(--warn); background: linear-gradient(180deg, rgba(245,158,11,0.12), #fff 40%); }
+.result-box.unverified { border-left-color: var(--muted); background: linear-gradient(180deg, rgba(91,100,120,0.07), #fff 40%); }
 .result-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 .result-status { font-weight: 800; font-size: 1.05rem; }
 .result-formula { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: var(--muted); font-weight: 600; }
@@ -267,6 +269,7 @@ nav.tabs button.active {
 
 /* ===================== METRICS ===================== */
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.misinfo-grid { grid-template-columns: repeat(3, 1fr); }
 .stat { background: linear-gradient(180deg, #f8fafc, #fff); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
 .num { font-size: 2rem; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
 .lbl { font-size: 0.82rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }

@@ -44,8 +44,6 @@ CREATE TABLE IF NOT EXISTS public.misinformation_events (
   detection_timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   reported_at TIMESTAMPTZ,
   fact_check_id BIGINT REFERENCES public.checks(id) ON DELETE SET NULL,
-  is_resolved BOOLEAN NOT NULL DEFAULT false,
-  resolution_notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

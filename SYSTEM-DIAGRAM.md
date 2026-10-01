@@ -61,7 +61,6 @@ flowchart TD
         D1 --> T1[("checks")]
         D2 --> T2[("misinformation_events")]
         D3 --> T3[("providers")]
-        D2 -. "no-op rows for platform stats" .- T4[("platform_misinformation_stats")]
     end
 
     subgraph RESP["8. RESPONSE"]
@@ -72,26 +71,23 @@ flowchart TD
 
     subgraph MET["9. METRICS READ PATH"]
         M0["loadMetrics()<br/>GET /api/metrics<br/>runs on load + after every<br/>verification + on tab switch"]
-        M1["getMetrics() — 5 Supabase queries"]
+        M1["getMetrics() — 4 Supabase queries"]
         M1 --> M2["Q1 total checks<br/>Q2 verified = conjunction_result=1<br/>flagged = total − verified"]
         M1 --> M3["Q3 all checks rows<br/>→ 7-day weekly buckets<br/>→ TRUSTED_CATEGORIES keyword scan<br/>   over search_evidence JSON"]
-        M1 --> M4["Q4 misinformation_events<br/>→ totals, active/resolved,<br/>Σ shares, Σ impressions,<br/>avgRiskScore, riskDistribution,<br/>categoryBreakdown"]
-        M1 --> M5["Q5 platform_misinformation_stats<br/>→ platformBreakdown"]
+        M1 --> M4["Q4 misinformation_events<br/>→ totals, active,<br/>avgRiskScore, riskDistribution,<br/>categoryBreakdown"]
         M6["Metrics JSON"]
         M7["updateMetricsUI(data)"]
-        M8["Stat tiles:<br/>Total · Verified · Flagged · Rate%<br/>Misinfo: Events · Active · Resolved · AvgRisk"]
+        M8["Stat tiles:<br/>Total · Verified · Flagged · Rate%<br/>Misinfo: Events · Active · AvgRisk"]
         M9["VerifiedPulseCharts.update(data)"]
-        M10["6 Chart.js charts"]
+        M10["4 Chart.js charts"]
     end
 
     subgraph CHARTS["10. VISUAL METRICS — assets/charts.js"]
         X1["chartTrend<br/>LINE/AREA · weekly claims vs verified"]
         X2["chartRisk<br/>DOUGHNUT · high/medium/low"]
-        X3["chartPlatform<br/>BAR · events per platform"]
-        X4["chartSpread<br/>GROUPED BAR · shares vs impressions"]
-        X5["chartSources<br/>H-BAR · trusted source citations"]
-        X6["chartCategory<br/>H-BAR · flagged claims by risk category"]
-        X7["emptyStatePlugin<br/>'No data available yet'"]
+        X3["chartSources<br/>H-BAR · trusted source citations"]
+        X4["chartCategory<br/>H-BAR · flagged claims by risk category"]
+        X5["emptyStatePlugin<br/>'No data available yet'"]
     end
 
     A --> B --> S0 --> S1
@@ -211,7 +207,6 @@ erDiagram
         int impressions
         float engagement_rate
         float spread_velocity
-        boolean is_resolved "active = resolved subtracted"
         timestamptz detection_timestamp
     }
     platform_misinformation_stats {
@@ -249,11 +244,9 @@ erDiagram
 | `checks` total − verified | Q2 | `statFlagged` — Flagged Risky |
 | `checks.created_at` | Q3 | `chartTrend` line/area (7 buckets) |
 | `checks.search_evidence` JSON | Q3 | `chartSources` — keyword scan vs `TRUSTED_CATEGORIES` |
-| `misinformation_events.is_resolved` | Q4 | `statMisinfoActive`, `statMisinfoResolved` |
+| `misinformation_events` (all rows) | Q4 | `statMisinfoTotal`, `statMisinfoActive` |
 | `misinformation_risk_score` | Q4 | `statMisinfoAvgRisk`, `chartRisk` doughnut buckets (<30 / 30–70 / ≥70) |
 | `risk_category` | Q4 | `chartCategory` horizontal bars |
-| `shares`, `impressions` | Q4 | `chartSpread` grouped bars |
-| `platform_misinformation_stats` | Q5 | `chartPlatform` bar, `chartSpread` groups |
 | `providers.calls / successes / failures` | upsert only | provider rotation health, `GET /api/providers` |
 
 ---

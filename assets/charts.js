@@ -193,74 +193,7 @@
     });
   }
 
-  /* ---------- 3. PLATFORM (Vertical Bar, rotated labels on mobile) ---------- */
-  function buildPlatform() {
-    charts.platform = new Chart(el('chartPlatform'), {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Incidents',
-          data: [],
-          backgroundColor: [COLORS.blue, COLORS.navy, COLORS.cyan, COLORS.false, COLORS.warn, COLORS.purple, COLORS.pink],
-          borderRadius: 8,
-          borderSkipped: false
-        }]
-      },
-      options: {
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              color: COLORS.navy,
-              font: { weight: '700', size: isMobile() ? 10 : 12 },
-              maxRotation: isMobile() ? 45 : 0,
-              minRotation: isMobile() ? 45 : 0
-            }
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(15,26,65,0.06)' }
-          }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
-
-  /* ---------- 4. SPREAD (Grouped Bar) ---------- */
-  function buildSpread() {
-    legendIntoCard('chartSpread', [[COLORS.blue, 'Shares'], [COLORS.cyan, 'Impressions']]);
-    charts.spread = new Chart(el('chartSpread'), {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Shares',
-            data: [],
-            backgroundColor: COLORS.blue,
-            borderRadius: 6
-          },
-          {
-            label: 'Impressions',
-            data: [],
-            backgroundColor: COLORS.cyan,
-            borderRadius: 6
-          }
-        ]
-      },
-      options: {
-        scales: {
-          x: { grid: { display: false }, ticks: { color: COLORS.navy, font: { weight: '600' } } },
-          y: { beginAtZero: true, grid: { color: 'rgba(15,26,65,0.06)' } }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
-  }
-
-  /* ---------- 5. TRUSTED SOURCES (Horizontal Bar) ---------- */
+  /* ---------- 3. TRUSTED SOURCES (Horizontal Bar) ---------- */
   function buildSources() {
     charts.sources = new Chart(el('chartSources'), {
       type: 'bar',
@@ -292,7 +225,7 @@
     });
   }
 
-  /* ---------- 6. CATEGORY (Horizontal Bar) ---------- */
+  /* ---------- 4. CATEGORY (Horizontal Bar) ---------- */
   function buildCategory() {
     charts.category = new Chart(el('chartCategory'), {
       type: 'bar',
@@ -320,8 +253,6 @@
     if (!el('chartTrend')) return;
     buildTrend();
     buildRisk();
-    buildPlatform();
-    buildSpread();
     buildSources();
     buildCategory();
     if (lastMetrics) applyData(lastMetrics);
@@ -354,11 +285,6 @@
 
     setData(charts.trend, [], []);
     setData(charts.risk, RISK_LABELS, [{ label: 'Risk', data: [] }]);
-    setData(charts.platform, [], [{ label: 'Incidents', data: [] }]);
-    setData(charts.spread, [], [
-      { label: 'Shares', data: [] },
-      { label: 'Impressions', data: [] }
-    ]);
     setData(charts.sources, [], [{ label: 'Citations', data: [] }]);
     setData(charts.category, [], [{ label: 'Flagged', data: [] }]);
 
@@ -375,16 +301,6 @@
       var rd = m.riskDistribution;
       setData(charts.risk, RISK_LABELS, [
         { label: 'Risk', data: [rd.high || 0, rd.medium || 0, rd.low || 0] }
-      ]);
-    }
-
-    if (m.platformBreakdown && m.platformBreakdown.length > 0) {
-      var pb = m.platformBreakdown;
-      setData(charts.platform, pb.map(function (p) { return p.platform; }),
-        [{ label: 'Incidents', data: pb.map(function (p) { return p.events || 0; }) }]);
-      setData(charts.spread, pb.map(function (p) { return p.platform; }), [
-        { label: 'Shares', data: pb.map(function (p) { return p.shares || 0; }) },
-        { label: 'Impressions', data: pb.map(function (p) { return p.impressions || 0; }) }
       ]);
     }
 

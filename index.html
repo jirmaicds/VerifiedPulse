@@ -111,10 +111,9 @@
 
     <div class="card">
         <h3><span class="ico">&#9888;</span> Misinformation Tracking</h3>
-        <div class="stat-grid">
+        <div class="stat-grid misinfo-grid">
             <div class="stat"><div class="num" id="statMisinfoTotal">--</div><div class="lbl">Total Events</div></div>
             <div class="stat"><div class="num" id="statMisinfoActive">--</div><div class="lbl">Active</div></div>
-            <div class="stat"><div class="num" id="statMisinfoResolved">--</div><div class="lbl">Resolved</div></div>
             <div class="stat"><div class="num" id="statMisinfoAvgRisk">--</div><div class="lbl">Avg Risk Score</div></div>
         </div>
     </div>
@@ -137,23 +136,6 @@
             <div class="chart-wrap">
                 <canvas id="chartRisk" aria-label="Risk distribution donut chart"></canvas>
             </div>
-        </div>
-
-        <!-- &#127760; Misinformation by Platform -->
-        <div class="card">
-            <h3><i class="ico">&#127760;</i> Misinformation by Platform</h3>
-            <div class="chart-wrap">
-                <canvas id="chartPlatform" aria-label="Misinformation by platform"></canvas>
-            </div>
-        </div>
-
-        <!-- &#128170; Misinformation Spread -->
-        <div class="card full-width">
-            <h3><i class="ico">&#128170;</i> Misinformation Spread (Shares &amp; Impressions)</h3>
-            <div class="chart-wrap">
-                <canvas id="chartSpread" aria-label="Misinformation spread metrics"></canvas>
-            </div>
-            <div class="chart-legend"></div>
         </div>
 
         <!-- &#127942; Most Used Trusted Sources (horizontal for long names) -->
@@ -432,11 +414,11 @@ function displayResults(data){
         var messageText;
 
         if (refuted.length > 0) {
-            boxClass = 'result-box unverified';
+            boxClass = 'result-box refuted';
             statusText = '&#10005; Status: Not Verified / Refuted Evidence Found';
             messageText = 'Proposition(s) ['+refuted.join(', ')+'] are refuted by the evidence, so the conjunction fails. This claim is inconsistent with the available sources and should NOT be shared.';
         } else if (risk && risk.isMisinformationCandidate) {
-            boxClass = 'result-box unverified';
+            boxClass = 'result-box unsupported';
             statusText = '&#9888; Status: Unsupported / No Source Found';
             messageText = 'No proposition resolved as verified and the other was refuted or unsupported. The claim has no supporting source, which is consistent with fabrication. It should NOT be shared without verification.';
         } else {
@@ -634,24 +616,24 @@ async function loadMetrics(){
         if (!resp.ok) {
             const text = await resp.text();
             console.error('Metrics fetch failed:', resp.status, text.slice(0, 200));
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 } } });
             return;
         }
         var text = await resp.text();
         if (!text.trim()) {
             console.error('Metrics returned empty response');
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 } } });
             return;
         }
         var data = JSON.parse(text);
         if(data.error) {
-            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
+            updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 } } });
             return;
         }
         updateMetricsUI(data);
     } catch(e){
         console.error('Failed to load metrics:', e);
-        updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, resolvedEvents: 0, totalShares: 0, totalImpressions: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 }, platformBreakdown: [] } });
+        updateMetricsUI({ total: 0, verified: 0, flagged: 0, weekly: [], trustedSources: [], misinformation: { totalEvents: 0, activeEvents: 0, avgRiskScore: 0, riskDistribution: { low: 0, medium: 0, high: 0 } } });
     }
 }
 
@@ -668,7 +650,6 @@ function updateMetricsUI(data){
       var m = data.misinformation;
       document.getElementById('statMisinfoTotal').textContent = (m.totalEvents || 0).toLocaleString();
       document.getElementById('statMisinfoActive').textContent = (m.activeEvents || 0).toLocaleString();
-      document.getElementById('statMisinfoResolved').textContent = (m.resolvedEvents || 0).toLocaleString();
       document.getElementById('statMisinfoAvgRisk').textContent = (m.avgRiskScore || 0).toFixed(1);
     }
 
